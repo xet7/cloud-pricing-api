@@ -20,7 +20,8 @@
     "mingo": "^3.0.5",
     "mongodb": "^3.5.8",
     "pino": "^6.3.2",
-    "pino-pretty": "^4.0.0"
+    "pino-pretty": "^4.0.0",
+    "yargs": "^15.4.1"
   },
   "devDependencies": {
     "@babel/core": "^7.10.5",
