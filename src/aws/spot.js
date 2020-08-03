@@ -36,18 +36,18 @@ function findProduct(db, region, instanceType, operatingSystem) {
   });
 }
 
-async function addPriceToProduct(db, product, price) {
-  const updatedProduct = { ...product, prices: product.prices.concat(price) };
+async function updateProduct(db, product) {
   return db.collection('products').updateOne(
     {
       vendorName: 'aws',
       sku: product.sku,
     },
-    { $set: updatedProduct },
+    { $set: product },
   );
 }
 
 async function loadEc2(db, jsonData) {
+  config.logger.info('Loading data');
   const now = new Date();
 
   for (const regionData of jsonData.config.regions) {
@@ -74,13 +74,8 @@ async function loadEc2(db, jsonData) {
           if (existingSpotPrice.USD === usd) {
             continue;
           }
-          existingSpotPrice.effectDateEnd = now;
-          newSpotPrice = {
-            ...existingSpotPrice,
-            USD: usd,
-            effectiveDateStart: now,
-            effectiveDateEnd: null,
-          };
+          existingSpotPrice.effectiveDateStart = now;
+          existingSpotPrice.USD = usd;
         } else {
           const existingOnDemandPrice = product.prices.find((p) => p.purchaseOption === 'on_demand');
           newSpotPrice = {
@@ -90,9 +85,10 @@ async function loadEc2(db, jsonData) {
             effectiveDateStart: now,
             effectiveDateEnd: null,
           };
+          product.prices.push(newSpotPrice);
         }
 
-        await addPriceToProduct(db, product, newSpotPrice);
+        await updateProduct(db, product);
       }
     }
   }

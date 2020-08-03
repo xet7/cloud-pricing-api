@@ -179,7 +179,16 @@ async function processFile(file, db) {
 async function loadAll() {
   const mongoClient = await MongoClient.connect(config.mongoDbUri, { useUnifiedTopology: true });
   const db = mongoClient.db();
-  db.collection('products').createIndex({ '$**': 1 });
+  db.collection('products').createIndex({ vendorName: 1, sku: 1 });
+  db.collection('products').createIndex({
+    vendorName: 1, service: 1, productFamily: 1, region: 1,
+  });
+  db.collection('products').createIndex({
+    vendorName: 1, service: 1, productFamily: 1, region: 1, 'attributes.instanceType': 1, 'attributes.tenancy': 1, 'attributes.operatingSystem': 1, 'attributes.capacitystatus': 1, 'attributes.preInstalledSw': 1,
+  });
+  db.collection('products').createIndex({
+    vendorName: 1, service: 1, productFamily: 1, region: 1, 'attributes.instanceType': 1, 'attributes.deploymentOption': 1, 'attributes.databaseEngine': 1, 'attributes.databaseEdition': 1,
+  });
 
   for (const file of glob.sync('data/*.json')) {
     config.logger.info(`Processing file: ${file}`);
