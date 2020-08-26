@@ -6,6 +6,7 @@ const axios = require('axios');
 const { MongoClient } = require('mongodb');
 const glob = require('glob');
 const config = require('../config.js');
+const { generateProductHash, generatePriceHash } = require('../utils/prices.js');
 
 const baseUrl = 'https://pricing.us-east-1.amazonaws.com';
 const indexUrl = '/offers/v1.0/aws/index.json';
@@ -83,7 +84,7 @@ async function downloadAll() {
   }
 }
 
-function parsePrices(priceData, purchaseOption) {
+function parsePrices(product, priceData, purchaseOption) {
   const prices = [];
 
   Object.values(priceData).forEach((priceItem) => {
@@ -107,6 +108,8 @@ function parsePrices(priceData, purchaseOption) {
         });
       }
 
+      price.priceHash = generatePriceHash(product.productHash, price);
+
       prices.push(price);
     });
   });
@@ -115,23 +118,26 @@ function parsePrices(priceData, purchaseOption) {
 }
 
 function parseProduct(productData, onDemandPriceData, reservedPriceData) {
-  const prices = [];
-  if (onDemandPriceData) {
-    prices.push(...parsePrices(onDemandPriceData, 'on_demand'));
-  }
-  if (reservedPriceData) {
-    prices.push(...parsePrices(reservedPriceData, 'reserved'));
-  }
-
-  return {
+  const product = {
     vendorName: 'aws',
     service: productData.attributes.servicecode,
     productFamily: productData.productFamily,
     region: regionMapping[productData.attributes.location] || null,
     sku: productData.sku,
     attributes: productData.attributes,
-    prices,
+    prices: [],
   };
+
+  product.productHash = generateProductHash(product);
+
+  if (onDemandPriceData) {
+    product.prices.push(...parsePrices(product, onDemandPriceData, 'on_demand'));
+  }
+  if (reservedPriceData) {
+    product.prices.push(...parsePrices(product, reservedPriceData, 'reserved'));
+  }
+
+  return product;
 }
 
 async function processFile(file, db) {
