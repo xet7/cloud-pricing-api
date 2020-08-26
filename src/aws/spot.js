@@ -4,6 +4,7 @@ const _ = require('lodash');
 const axios = require('axios');
 const { MongoClient } = require('mongodb');
 const config = require('../config.js');
+const { generatePriceHash } = require('../utils/prices.js');
 
 const ec2Url = 'https://website.spot.ec2.aws.a2z.com/spot.js';
 
@@ -85,6 +86,9 @@ async function loadEc2(db, jsonData) {
             effectiveDateStart: now,
             effectiveDateEnd: null,
           };
+
+          newSpotPrice.priceHash = generatePriceHash(product.productHash, newSpotPrice);
+
           product.prices.push(newSpotPrice);
         }
 

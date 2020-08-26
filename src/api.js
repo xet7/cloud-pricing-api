@@ -19,6 +19,7 @@ const strToRegex = (str) => {
 
 const typeDefs = gql`
   type Price {
+    priceHash: String!
     purchaseOption: String
     unit: String!
     USD: String!
@@ -33,6 +34,7 @@ const typeDefs = gql`
   }
 
   type Product {
+    productHash: String!
     vendorName: String!
     service: String!
     productFamily: String!
