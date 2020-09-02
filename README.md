@@ -18,7 +18,7 @@ This is an early stage project, pull requests to add resources/fix bugs are welc
 
 ## Example requests
 
-Get all t3.micro prices in US East, this returns 30+ results. Try it yourself by pasting the query into [https://cloud-pricing.alistair.scot/graphql](https://cloud-pricing.alistair.scot/graphql). This is running on minimal infrastructure so is not guaranteed to always be available.
+Get all t3.micro prices in US East, this returns 30+ results. Try it yourself by pasting the query into [https://pricing.infracost.io/graphql](https://pricing.infracost.io/graphql).
 
 ```graphql
 query {
@@ -97,7 +97,7 @@ Response:
 1. Clone the repo
 
   ```sh
-  git clone https://github.com/aliscott/cloud-pricing-api.git
+  git clone https://github.com/infracost/cloud-pricing-api.git
   cd cloud-pricing-api
   ```
 
