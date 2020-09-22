@@ -2,10 +2,10 @@
   "name": "cloud-pricing-api",
   "version": "1.0.0",
   "description": "Cloud Pricing API",
-  "main": "src/update.js",
+  "main": "src/server.js",
   "scripts": {
     "update": "node src/update.js",
-    "start": "node src/api.js",
+    "start": "node src/server.js",
     "lint": "eslint --ext .js --ignore-path .gitignore ."
   },
   "author": "Alistair Scott",
