@@ -13,6 +13,15 @@ function createApp(opts = {}) {
     logger: config.logger,
   }));
 
+  app.use(express.json());
+  app.use(function(err, _req, res, next) {
+    if (err instanceof SyntaxError && err.status === 400) {
+      res.status(400).send({ error: 'Bad request' });
+    } else {
+      next();
+    }
+  });
+
   const apolloConfig = {
     typeDefs,
     resolvers,
