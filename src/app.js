@@ -11,6 +11,12 @@ function createApp(opts = {}) {
 
   app.use(pinoHttp({
     logger: config.logger,
+    customLogLevel(res, err) {
+      if (err || res.statusCode === 500) {
+        return 'error';
+      }
+      return 'info';
+    },
   }));
 
   app.use(express.json());
