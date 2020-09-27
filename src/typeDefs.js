@@ -52,6 +52,8 @@ input PriceFilter {
   unit: String
   description: String
   description_regex: String
+  startUsageAmount: String
+  endUsageAmount: String
   termLength: String
   termPurchaseOption: String
   termOfferingClass: String
