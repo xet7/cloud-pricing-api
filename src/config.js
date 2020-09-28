@@ -1,4 +1,8 @@
-require('dotenv').config();
+const dotenv = require('dotenv');
+
+dotenv.config({ path: '.env.local' });
+dotenv.config();
+
 const pino = require('pino');
 
 const logger = pino({
@@ -6,8 +10,10 @@ const logger = pino({
   prettyPrint: process.env.NODE_ENV !== 'production',
 });
 
-module.exports = {
+const config = {
   logger,
   port: process.env.PORT || 4000,
   mongoDbUri: process.env.MONGODB_URI || 'mongodb://localhost:27017/cloudPricing',
 };
+
+module.exports = config;

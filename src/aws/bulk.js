@@ -95,8 +95,8 @@ function parsePrices(product, priceData, purchaseOption) {
         USD: priceDimension.pricePerUnit.USD,
         effectiveDateStart: priceItem.effectiveDate,
         effectiveDateEnd: null,
-        startUsageAmount: priceDimension.startingRange,
-        endUsageAmount: priceDimension.endingRange,
+        startUsageAmount: priceDimension.beginRange,
+        endUsageAmount: priceDimension.endRange,
         description: priceDimension.description,
       };
 

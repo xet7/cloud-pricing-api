@@ -1,7 +1,17 @@
 /* eslint no-shadow: ["error", { "allow": ["requestContext"] }] */
 
-const config = require('../config.js');
+const _ = require('lodash');
 const prettier = require('prettier');
+const config = require('../config.js');
+
+const DEFAULT_TRUNCATE_LENGTH = 4096;
+
+function truncate(str, l = DEFAULT_TRUNCATE_LENGTH) {
+  if (str.length <= l) {
+    return str;
+  }
+  return `${str.slice(0, l)}...`;
+}
 
 module.exports = {
   requestDidStart(requestContext) {
@@ -9,19 +19,20 @@ module.exports = {
       return {};
     }
 
-    const ctx = {
-      userAgent: requestContext.request.http.headers.get('user-agent'),
-      ip: requestContext.context.ip,
-    }
+    const ctx = _.omit(requestContext.context, '_extensionStack');
 
-    config.logger.debug(ctx, `GraphQL request started:\n${prettier.format(requestContext.request.query, { parser: "graphql"})}\nvariables:\n${JSON.stringify(requestContext.request.variables, null, 2)}`);
+    const query = truncate(prettier.format(requestContext.request.query, { parser: 'graphql' }));
+    const vars = truncate(JSON.stringify(requestContext.request.variables, null, 2));
+    config.logger.debug(ctx, `GraphQL request started:\n${query}\nvariables:\n${vars}`);
 
     return {
       didEncounterErrors(requestContext) {
-        config.logger.error(ctx, `GraphQL encountered errors:\n${JSON.stringify(requestContext.errors)}`);
+        const errors = truncate(JSON.stringify(requestContext.errors));
+        config.logger.error(ctx, `GraphQL encountered errors:\n${errors}`);
       },
       willSendResponse(requestContext) {
-        config.logger.debug(ctx, `GraphQL request completed:\n${JSON.stringify(requestContext.response.data, null, 2)}`);
+        const respData = truncate(JSON.stringify(requestContext.response.data));
+        config.logger.debug(ctx, `GraphQL request completed:\n${respData}`);
       },
     };
   },
