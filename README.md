@@ -2,7 +2,7 @@
 
 This project aims to create a GraphQL cloud pricing API. Currently only AWS resources are supported, but future support for other cloud vendors is planned.
 
-This is an early stage project, pull requests to add resources/fix bugs are welcome.
+Infracost has a hosted version of this service. To get an API key [download infracost](https://www.infracost.io/docs/#installation) and run `infracost register`.
 
 ## Table of Contents
 
