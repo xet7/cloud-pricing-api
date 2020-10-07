@@ -9,18 +9,20 @@ const typeDefs = require('./typeDefs');
 function createApp(opts = {}) {
   const app = express();
 
-  app.use(pinoHttp({
-    logger: config.logger,
-    customLogLevel(res, err) {
-      if (err || res.statusCode === 500) {
-        return 'error';
-      }
-      return 'info';
-    },
-  }));
+  if (!opts.disableRequestLogging) {
+    app.use(pinoHttp({
+      logger: config.logger,
+      customLogLevel(res, err) {
+        if (err || res.statusCode === 500) {
+          return 'error';
+        }
+        return 'info';
+      },
+    }));
+  }
 
   app.use(express.json());
-  app.use(function(err, _req, res, next) {
+  app.use((err, _req, res, next) => {
     if (err instanceof SyntaxError && err.status === 400) {
       res.status(400).send({ error: 'Bad request' });
     } else {
