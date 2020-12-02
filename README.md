@@ -18,7 +18,7 @@ Infracost has a hosted version of this service. To get an API key [download infr
 
 ## Example requests
 
-Get all t3.micro prices in US East, this returns 30+ results. Try it yourself by pasting the query into [https://pricing.infracost.io/graphql](https://pricing.infracost.io/graphql).
+Get all t3.micro prices in US East, this returns 30+ results. Try it yourself by pasting the following query into [https://pricing.api.infracost.io/graphql](https://pricing.api.infracost.io/graphql) - you'll need to use something like the [modheader](https://bewisse.com/modheader/) browser extension so you can set the custom HTTP header `x-api-key` to your Infracost API key.
 
 ```graphql
 query {
