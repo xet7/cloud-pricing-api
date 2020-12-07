@@ -7,7 +7,11 @@ function generateProductHash(product: Product): string {
   // keep AWS product hashes the same so Infracost tests don't break
   if (product.vendorName === 'aws') {
     hashFields = ['vendorName', 'sku'];
-  } else {
+  } 
+  else if (product.vendorName === 'azure') {
+    hashFields = ['vendorName', 'region', 'sku'];
+  } 
+  else {
     hashFields = ['vendorName', 'region', 'sku'];
   }
 
@@ -29,7 +33,17 @@ function generatePriceHash(product: Product, price: Price): string {
       'termPurchaseOption',
       'termOfferingClass',
     ];
-  } else {
+  }
+  else if (product.vendorName === 'azure') {
+    hashFields = [
+      'purchaseOption',
+      'unit',
+      'termLength',
+      'termPurchaseOption',
+      'termOfferingClass',
+    ];
+  }  
+  else {
     hashFields = [
       'purchaseOption',
       'unit',

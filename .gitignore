@@ -1,6 +1,16 @@
 /node_modules
 /data
+
+# Environment files
 .env
-/tmp
-/dist
+.env.sh
 .env.local
+
+# Temp
+/tmp
+
+# Dist
+/dist
+
+# other file types
+*.tgz 

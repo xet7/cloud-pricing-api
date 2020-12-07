@@ -1,0 +1,20 @@
+# Write your query or mutation here
+query {
+  products(
+    filter: {
+      vendorName: "azure",
+      service: "Virtual Machines",
+      sku: "DZH318Z0CSHL/008T",
+      productFamily: "Compute",
+      region: "US Central",
+      attributeFilters: []
+    },
+  ) {
+    prices(
+      filter: {
+        purchaseOption: "Consumption",
+        unit: "1 Hour"
+      },
+    ) { USD }
+  }
+}

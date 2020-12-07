@@ -141,7 +141,7 @@ npm run dev
 ### Running in production
 
 ```
-npm build
+npm run-script build
 npm run start
 ```
 
