@@ -1,5 +1,7 @@
 # Cloud Pricing API
 
+![Node.js CI](https://github.com/DanielMabbett/cloud-pricing-api/workflows/Node.js%20CI/badge.svg)
+
 This project aims to create a GraphQL cloud pricing API. Currently supports AWS & Google, future support for other cloud vendors is planned.
 
 Infracost has a hosted version of this service. To get an API key [download infracost](https://www.infracost.io/docs/#installation) and run `infracost register`.
@@ -118,7 +120,13 @@ Response:
   npm install
   ```
 
-4. Update the pricing data
+4. Run npm build
+
+  ```sh
+  npm run-script build
+  ```
+
+5. Update the pricing data
    **Note: this downloads several GB of data**
 
   ```sh
@@ -126,8 +134,17 @@ Response:
   ```
 
   If you only want to download from a single source you can run:
+
+  `Example: AWS Bulk`
+
   ```sh
   npm run update -- --only=aws:bulk
+  ```
+
+  `Example: Azure Retail`
+  
+  ```sh
+  npm run update -- --only=azure:retail
   ```
 
 ## Usage
