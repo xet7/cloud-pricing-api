@@ -53,4 +53,4 @@ jobs:
           push: true
           tags: |
             danielmabbett/infracost-cloud-pricing-api:latest
-            danielmabbett/infracost-cloud-pricing-api:${{ env.MajorVersion }}.${{ env.MinorVersion }}.${{ GITHUB_RUN_NUMBER }}
+            danielmabbett/infracost-cloud-pricing-api:${{ env.MajorVersion }}.${{ env.MinorVersion }}.${{ github.run_number }}

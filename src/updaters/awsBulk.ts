@@ -116,7 +116,7 @@ async function downloadService(offer: Offer) {
         responseType: 'stream',
       });
       const writer = fs.createWriteStream(
-        `data/aws-${offer.offerCode}-${region.regionCode}.json`
+        `./dist/data/aws-${offer.offerCode}-${region.regionCode}.json`
       );
       resp.data.pipe(writer);
       await new Promise((resolve) => {
@@ -130,7 +130,7 @@ async function downloadService(offer: Offer) {
       url: `${baseUrl}${offer.currentVersionUrl}`,
       responseType: 'stream',
     });
-    const writer = fs.createWriteStream(`data/aws-${offer.offerCode}.json`);
+    const writer = fs.createWriteStream(`./dist/data/aws-${offer.offerCode}.json`);
     resp.data.pipe(writer);
     await new Promise((resolve) => {
       writer.on('finish', resolve);
@@ -139,7 +139,7 @@ async function downloadService(offer: Offer) {
 }
 
 async function loadAll(): Promise<void> {
-  for (const filename of glob.sync('data/aws-*.json')) {
+  for (const filename of glob.sync('./dist/data/aws-*.json')) {
     config.logger.info(`Processing file: ${filename}`);
     try {
       await processFile(filename);
