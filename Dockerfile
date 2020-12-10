@@ -1,18 +1,15 @@
-FROM node:14.15.0-alpine3.12 as build
+FROM node:14.15.0-alpine3.12
 
 WORKDIR /usr/src/app
-COPY package*.json ./
-RUN npm install --production
-RUN cp -R node_modules prod_node_modules
-RUN npm install
+
 COPY . .
-RUN npm run build
 
-FROM node:14.15.0-alpine3.12 as release
+RUN npm install
+RUN npm run-script build
 
-WORKDIR /usr/src/app
-COPY --from=build /usr/src/app/prod_node_modules ./node_modules
-COPY --from=build /usr/src/app/dist ./dist
-COPY package*.json ./
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["sh", "/docker-entrypoint.sh"]
+
 EXPOSE 4000
-CMD [ "npm", "run", "start" ]
+
+CMD [ "node", "./dist/server.js" ]
