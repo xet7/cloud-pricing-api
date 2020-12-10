@@ -2,6 +2,9 @@
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
 name: GitHub Actions
+env:
+  MajorVersion: "1"
+  MinorVersion: "0"
 
 on:
   push:
@@ -49,4 +52,4 @@ jobs:
           push: true
           tags: |
             danielmabbett/infracost-cloud-pricing-api:latest
-            danielmabbett/infracost-cloud-pricing-api:1.0.0
+            danielmabbett/infracost-cloud-pricing-api:${{ env.MajorVersion }}.${{ env.MinorVersion }}.${{ env.GITHUB_RUN_NUMBER }}
