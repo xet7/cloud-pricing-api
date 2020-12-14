@@ -6,9 +6,10 @@ services:
       context: .
       dockerfile: Dockerfile
     ports: 
-      - 80:4000
+      - 4000:4000
     environment:
       - MONGODB_URI=mongodb://db:27017/cloudPricing
+      - CLOUD_PROVIDER=AWS
     depends_on: [db]
 
   db:
