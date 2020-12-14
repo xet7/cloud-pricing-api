@@ -87,6 +87,8 @@ Response:
 }
 ```
 
+> More examples can be found in `./examples/queries`
+
 ## Getting started
 
 ### Prerequisites
