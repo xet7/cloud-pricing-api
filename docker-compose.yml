@@ -13,7 +13,7 @@ services:
     depends_on: [db]
 
   db:
-    image: mongo:latest
+    image: mongo:4.4
     restart: unless-stopped
     volumes:
       - mongodb-data:/data/db

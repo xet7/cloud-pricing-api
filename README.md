@@ -91,8 +91,8 @@ Response:
 
 ### Prerequisites
 
- * Node.js >= 12.18.0
- * MongoDB >= 3.6
+ * Node.js >= 14.15.0
+ * MongoDB >= 4.4
 
 ### Installation
 
