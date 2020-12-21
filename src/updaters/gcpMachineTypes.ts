@@ -47,7 +47,7 @@ const machineTypeOverrides: {
   [key: string]: { cpu?: number; memory?: number };
 } = {
   'e2-micro': { cpu: 0.25 },
-  'e2-sall': { cpu: 0.5 },
+  'e2-small': { cpu: 0.5 },
   'e2-medium': { cpu: 1 },
 };
 

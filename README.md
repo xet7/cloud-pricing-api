@@ -127,7 +127,7 @@ Response:
 
   If you only want to download from a single source you can run:
   ```sh
-  npm run update -- --only=aws:bulk
+  npm run update:dev -- --only=aws:bulk
   ```
 
 ## Usage
