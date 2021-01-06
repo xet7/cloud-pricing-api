@@ -1,7 +1,6 @@
 /node_modules
 /data
-
-# Environment files
+/creds
 .env
 .env.sh
 .env.local
