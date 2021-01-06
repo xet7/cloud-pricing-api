@@ -76,7 +76,7 @@ async function download(): Promise<void> {
     filename = filename.replace(/\//g, '-');
     filename = filename.replace(/\./g, '-');
 
-    filename = `./dist/data/${filename}.json`;
+    filename = `data/${filename}.json`;
     const writer = fs.createWriteStream(filename);
     resp.data.pipe(writer);
     await new Promise((resolve) => {
@@ -88,7 +88,7 @@ async function download(): Promise<void> {
 
 async function load(): Promise<void> {
     config.logger.info(`Loading Items...`);
-    for (const filename of glob.sync('./dist/data/az-items.json')) {
+    for (const filename of glob.sync('data/az-items.json')) {
         try {
             await processFile(filename);
         } catch (e) {
