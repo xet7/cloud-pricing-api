@@ -1,7 +1,5 @@
 # Cloud Pricing API
 
-![GitHub Actions](https://github.com/DanielMabbett/cloud-pricing-api/workflows/GitHub%20Actions/badge.svg)
-
 This project aims to create a GraphQL cloud pricing API. Currently supports AWS & Google, future support for other cloud vendors is planned.
 
 Infracost has a hosted version of this service. To get an API key [download infracost](https://www.infracost.io/docs/#installation) and run `infracost register`.
