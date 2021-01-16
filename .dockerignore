@@ -1,5 +1,6 @@
 /.devcontainer
 /.github
+
 /data
 /dist
 /examples
@@ -7,8 +8,10 @@
 /tmp
 
 .env*
-docker-compose.yml
-README.md
 .gitignore
+
+docker-compose.yml
+README
+README.md
 LICENSE
 LICENSE.md
