@@ -1,6 +1,5 @@
 import fs from 'fs';
-import _ from 'lodash';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import glob from 'glob';
 import config from '../config';
 import { Product, Price } from '../db/types';
@@ -14,13 +13,22 @@ type ItemsJson = {
     nextPageToken: string;
 };
 
+type PageJson = {
+    currentPageLink: string;
+    nextPageLink: string;
+    count: string;
+};
+
 type ProductJson = {
     currencyCode: string;
-    effectiveStartDate: string;
+    tierMinimumUnits: string;
     retailPrice: string;
     unitPrice: string;
     armRegionName: string;
     location: string;
+    effectiveStartDate: string;
+    meterId: string;
+    meterName: string;
     productId: string;
     skuId: string;
     productName: string;
@@ -35,60 +43,13 @@ type ProductJson = {
 };
 
 async function update(): Promise<void> {
-    await download();
-    await load();
+    await downloadAll();
+    await loadAll();
 }
 
-async function download(): Promise<void> {
-    config.logger.info(`Downloading Items...`);
-
-    let resp: AxiosResponse | null = null;
-    let success = false;
-    let attempts = 0;
-
-    do {
-        try {
-            attempts++;
-            resp = await axios({
-                method: 'get',
-                url: `${baseUrl}`,
-                responseType: 'stream',
-            });
-            success = true;
-        } catch (err) {
-            // Too many requests, sleep and retry
-            if (err.response.status === 429) {
-                config.logger.info(
-                    'Too many requests, sleeping for 30s and retrying'
-                );
-                await sleep(30000);
-            } else {
-                throw err;
-            }
-        }
-    } while (!success && attempts < 3);
-
-    if (!resp) {
-        return;
-    }
-
-    let filename = `az-items`;
-    filename = filename.replace(/\//g, '-');
-    filename = filename.replace(/\./g, '-');
-
-    filename = `data/${filename}.json`;
-    const writer = fs.createWriteStream(filename);
-    resp.data.pipe(writer);
-    await new Promise((resolve) => {
-        writer.on('finish', resolve);
-    });
-    config.logger.info(`Downloaded json file.`);
-
-}
-
-async function load(): Promise<void> {
-    config.logger.info(`Loading Items...`);
-    for (const filename of glob.sync('data/az-items.json')) {
+async function loadAll(): Promise<void> {
+    config.logger.info(`Loading Azure Pricing Items...`);
+    for (const filename of glob.sync('data/az-items-*.json')) {
         try {
             await processFile(filename);
         } catch (e) {
@@ -96,6 +57,45 @@ async function load(): Promise<void> {
             config.logger.error(e.stack);
         }
     }
+}
+
+async function downloadAll(): Promise<PageJson[]> {
+    config.logger.info(`Downloading Azure Pricing API Pages...`);
+
+    const pages: PageJson[] = [];
+
+    let count = 100;
+    let currentPageLink = '';
+    do {
+
+        if (!currentPageLink) {
+            currentPageLink = `${baseUrl}`;
+        }
+
+        const resp = await axios.get(currentPageLink);
+
+        const page: PageJson = {
+            currentPageLink: `${currentPageLink}`,
+            nextPageLink: resp.data.NextPageLink,
+            count: resp.data.Count,
+        };
+        pages.push(page);
+
+        let filename = `az-items-${currentPageLink}`;
+        filename = filename.replace(/\//g, '-').replace(/\./g, '-').replace(/:/g, '-');
+        filename = `data/${filename}.json`;
+
+        const dataString = JSON.stringify(resp.data)
+        fs.writeFile(filename, dataString, (err) => {
+            if (err) throw err;
+        });
+
+        count = resp.data.Count;
+        currentPageLink = resp.data.NextPageLink;
+
+    } while (count === 100);
+
+    return pages;
 }
 
 async function processFile(filename: string): Promise<void> {
@@ -120,7 +120,10 @@ function parseProduct(productJson: ProductJson): Product {
         service: productJson.serviceName,
         productFamily: productJson.serviceFamily,
         attributes: {
-            type: productJson.type
+            type: productJson.type,
+            effectiveStartDate: productJson.effectiveStartDate,
+            meterId: productJson.meterId,
+            meterName: productJson.meterName,
         },
         prices: [],
     };
@@ -134,24 +137,20 @@ function parseProduct(productJson: ProductJson): Product {
 function parsePrices(product: Product, productJson: ProductJson): Price[] {
     const prices: Price[] = [];
 
-            const price: Price = {
-                priceHash: '',
-                purchaseOption: productJson.type,
-                unit: productJson.unitOfMeasure,
-                USD: `${productJson.unitPrice}`,
-                effectiveDateStart: productJson.effectiveStartDate,
-                startUsageAmount: productJson.retailPrice
-            };
+    const price: Price = {
+        priceHash: '',
+        purchaseOption: productJson.type,
+        unit: productJson.unitOfMeasure,
+        USD: `${productJson.unitPrice}`,
+        effectiveDateStart: productJson.effectiveStartDate,
+        startUsageAmount: productJson.tierMinimumUnits
+    };
 
-            price.priceHash = generatePriceHash(product, price);
+    price.priceHash = generatePriceHash(product, price);
 
-            prices.push(price);
+    prices.push(price);
 
     return prices;
-}
-
-function sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export default {
