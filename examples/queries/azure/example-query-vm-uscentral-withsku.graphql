@@ -4,7 +4,7 @@ query {
     filter: {
       vendorName: "azure",
       service: "Virtual Machines",
-      sku: "DZH318Z0CSHL/008T",
+      sku: "DS2 v2",
       productFamily: "Compute",
       region: "US Central",
       attributeFilters: []
