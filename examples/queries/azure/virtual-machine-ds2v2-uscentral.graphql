@@ -6,7 +6,7 @@ query {
       service: "Virtual Machines",
       sku: "DS2 v2",
       productFamily: "Compute",
-      region: "US Central",
+      region: "centralus",
       attributeFilters: []
     },
   ) {

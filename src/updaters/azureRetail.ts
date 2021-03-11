@@ -8,73 +8,6 @@ import { upsertProducts } from '../db/upsert';
 
 const baseUrl = 'https://prices.azure.com/api/retail/prices';
 
-const regionMapping: { [key: string]: string } = {
-  'East US'                   : 'eastus',
-  'East US 2'                 : 'eastus2',
-  'South Central US'          : 'southcentralus',
-  'West US 2'                 : 'westus2',
-  'Australia East'            : 'australiaeast',
-  'Southeast Asia'            : 'southeastasia',
-  'North Europe'              : 'northeurope',
-  'UK South'                  : 'uksouth',
-  'West Europe'               : 'westeurope',
-  'Central US'                : 'centralus',
-  'North Central US'          : 'northcentralus',
-  'West US'                   : 'westus',
-  'South Africa North'        : 'southafricanorth',
-  'Central India'             : 'centralindia',
-  'East Asia'                 : 'eastasia',
-  'Japan East'                : 'japaneast',
-  'Korea Central'             : 'koreacentral',
-  'Canada Central'            : 'canadacentral',
-  'France Central'            : 'francecentral',
-  'Germany West Central'      : 'germanywestcentral',
-  'Norway East'               : 'norwayeast',
-  'Switzerland North'         : 'switzerlandnorth',
-  'UAE North'                 : 'uaenorth',
-  'Brazil South'              : 'brazilsouth',
-  'Central US (Stage)'        : 'centralusstage',
-  'East US (Stage)'           : 'eastusstage',
-  'East US 2 (Stage)'         : 'eastus2stage',
-  'North Central US (Stage)'  : 'northcentralusstage',
-  'South Central US (Stage)'  : 'southcentralusstage',
-  'West US (Stage)'           : 'westusstage',
-  'West US 2 (Stage)'         : 'westus2stage',
-  'Asia'                      : 'asia',
-  'Asia Pacific'              : 'asiapacific',
-  'Australia'                 : 'australia',
-  'Brazil'                    : 'brazil',
-  'Canada'                    : 'canada',
-  'Europe'                    : 'europe',
-  'Global'                    : 'global',
-  'India'                     : 'india',
-  'Japan'                     : 'japan',
-  'United Kingdom'            : 'uk',
-  'United States'             : 'unitedstates',
-  'East Asia (Stage)'         : 'eastasiastage',
-  'Southeast Asia (Stage)'    : 'southeastasiastage',
-  'Central US EUAP'           : 'centraluseuap',
-  'East US 2 EUAP'            : 'eastus2euap',
-  'West Central US'           : 'westcentralus',
-  'West US 3'                 : 'westus3',
-  'South Africa West'         : 'southafricawest',
-  'Australia Central'         : 'australiacentral',
-  'Australia Central 2'       : 'australiacentral2',
-  'Australia Southeast'       : 'australiasoutheast',
-  'Japan West'                : 'japanwest',
-  'Korea South'               : 'koreasouth',
-  'South India'               : 'southindia',
-  'West India'                : 'westindia',
-  'Canada East'               : 'canadaeast',
-  'France South'              : 'francesouth',
-  'Germany North'             : 'germanynorth',
-  'Norway West'               : 'norwaywest',
-  'Switzerland West'          : 'switzerlandwest',
-  'UK West'                   : 'ukwest',
-  'UAE Central'               : 'uaecentral',
-  'Brazil Southeast'          : 'brazilsoutheast',
-};
-
 type ItemsJson = {
     Items: ProductJson[];
     nextPageToken: string;
@@ -133,6 +66,7 @@ async function downloadAll(): Promise<PageJson[]> {
 
     let count = 100;
     let currentPageLink = '';
+    let pageNumber = 1;
     do {
 
         if (!currentPageLink) {
@@ -160,6 +94,11 @@ async function downloadAll(): Promise<PageJson[]> {
         count = resp.data.Count;
         currentPageLink = resp.data.NextPageLink;
 
+        pageNumber += 1
+        if (pageNumber % 100 === 0) {
+            config.logger.info(`Downloaded ${pageNumber} pages...`);
+        }
+
     } while (count === 100);
 
     return pages;
@@ -183,15 +122,18 @@ function parseProduct(productJson: ProductJson): Product {
         productHash: '',
         sku: productJson.skuName,
         vendorName: 'azure',
-        region: regionMapping[productJson.location] || productJson.location,
+        region: productJson.armRegionName || null,
         service: productJson.serviceName,
         productFamily: productJson.serviceFamily,
         attributes: {
-            type: productJson.type,
             effectiveStartDate: productJson.effectiveStartDate,
             meterId: productJson.meterId,
             meterName: productJson.meterName,
+            productID: productJson.productId,
+            productName: productJson.productName,
+            serviceID: productJson.serviceId,
             skuID: productJson.skuId,
+            type: productJson.type,
         },
         prices: [],
     };

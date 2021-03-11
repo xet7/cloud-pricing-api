@@ -1,0 +1,20 @@
+# Write your query or mutation here
+query {
+  products(
+    filter: {
+      vendorName: "azure",
+      service: "Virtual WAN",
+      sku: "Standard Hub",
+      productFamily: "Networking",
+      region: "westindia",
+      attributeFilters: []
+    },
+  ) {
+    prices(
+      filter: {
+        purchaseOption: "Consumption",
+        unit: "1 Hour"
+      },
+    ) { USD }
+  }
+}
