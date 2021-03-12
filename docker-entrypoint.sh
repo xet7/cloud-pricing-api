@@ -4,29 +4,37 @@ set -e
 ## Run startup command 
 echo "Running Start Up Script__"
 
+## Set default updater to All if none specified
 if [[ -z "${CLOUD_PROVIDER}" ]]; then
   UPDATE_PARAM="All"
 else
   UPDATE_PARAM="${CLOUD_PROVIDER}"
 fi
 
-if [ "${UPDATE_PARAM}" == "All" ]; then
-	npm run update
-fi
+case $UPDATE_PARAM in
 
-if [ "${UPDATE_PARAM}" == "AWS" ]; then
-	npm run update -- --only=aws:bulk
-	npm run update -- --only=aws:spot
-fi
+  "All")
+	  npm run update
+    ;;
 
-if [ "${UPDATE_PARAM}" == "Azure" ]; then
-	npm run update -- --only=azure:retail
-fi
+  "AWS")
+    npm run update -- --only=aws:bulk
+    npm run update -- --only=aws:spot
+    ;;
 
-if [ "${UPDATE_PARAM}" == "GCP" ]; then
-	npm run update -- --only=gcp:catalog
-	npm run update -- --only=gcp:machineTypes
-fi
+  "Azure" | "AzureRM")
+    npm run update -- --only=azure:retail
+    ;;
+
+  "GCP" | "Google")
+    npm run update -- --only=gcp:catalog
+	  npm run update -- --only=gcp:machineTypes
+    ;;
+
+  *)
+    echo -n "Unknown Updater Selected"
+    ;;
+esac
 
 ## Running passed command
 if [[ "$1" ]]; then
