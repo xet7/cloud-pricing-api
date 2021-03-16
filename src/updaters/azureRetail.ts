@@ -47,18 +47,6 @@ async function update(): Promise<void> {
     await loadAll();
 }
 
-async function loadAll(): Promise<void> {
-    config.logger.info(`Loading Azure Pricing Items...`);
-    for (const filename of glob.sync('data/az-items-*.json')) {
-        try {
-            await processFile(filename);
-        } catch (e) {
-            config.logger.error(`Skipping file ${filename} due to error ${e}`);
-            config.logger.error(e.stack);
-        }
-    }
-}
-
 async function downloadAll(): Promise<PageJson[]> {
     config.logger.info(`Downloading Azure Pricing API Pages...`);
 
@@ -102,6 +90,18 @@ async function downloadAll(): Promise<PageJson[]> {
     } while (count === 100);
 
     return pages;
+}
+
+async function loadAll(): Promise<void> {
+    config.logger.info(`Loading Azure Pricing Items...`);
+    for (const filename of glob.sync('data/az-items-*.json')) {
+        try {
+            await processFile(filename);
+        } catch (e) {
+            config.logger.error(`Skipping file ${filename} due to error ${e}`);
+            config.logger.error(e.stack);
+        }
+    }
 }
 
 async function processFile(filename: string): Promise<void> {
