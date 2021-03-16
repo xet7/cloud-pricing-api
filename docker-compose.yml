@@ -6,11 +6,15 @@ services:
       context: .
       dockerfile: Dockerfile
     ports: 
-      - 4000:4000
+        - 4000:4000
     environment:
       - MONGODB_URI=mongodb://db:27017/cloudPricing
-      - CLOUD_PROVIDER=AWS
+      - UPDATE_CLOUD_PROVIDER=Azure
     depends_on: [db]
+    # volumes:
+    #   - ./data:/usr/src/app/data
+    networks:
+      - infracost
 
   db:
     image: mongo:4.4
@@ -19,6 +23,12 @@ services:
       - mongodb-data:/data/db
     ports:
      - 27017:27017
+    networks:
+      - infracost
  
 volumes:
   mongodb-data:
+
+
+networks:
+  infracost:
