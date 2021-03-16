@@ -4,13 +4,6 @@ set -e
 ## Run startup command 
 echo "Running Start Up Script__"
 
-## Set default updater to All if none specified
-if [[ -z "${CLOUD_PROVIDER}" ]]; then
-  UPDATE_PARAM="All"
-else
-  UPDATE_PARAM="${CLOUD_PROVIDER}"
-fi
-
 case $UPDATE_PARAM in
 
   "All")
@@ -32,7 +25,7 @@ case $UPDATE_PARAM in
     ;;
 
   *)
-    echo -n "Unknown Updater Selected"
+    echo -n "Unknown/No Updater Selected"
     ;;
 esac
 
