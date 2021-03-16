@@ -8,10 +8,6 @@ function generateProductHash(product: Product): string {
   if (product.vendorName === 'aws') {
     hashFields = ['vendorName', 'sku'];
   }
-  // In Azure skuNames are used for multiple services. So need service.
-  if (product.vendorName === 'azure') {
-    hashFields = ['vendorName', 'region', 'service', 'sku'];
-  }
   else {
     hashFields = ['vendorName', 'region', 'sku'];
   }

@@ -120,7 +120,7 @@ async function processFile(filename: string): Promise<void> {
 function parseProduct(productJson: ProductJson): Product {
     const product: Product = {
         productHash: '',
-        sku: productJson.skuName,
+        sku: productJson.skuId,
         vendorName: 'azure',
         region: productJson.armRegionName || null,
         service: productJson.serviceName,
@@ -132,7 +132,7 @@ function parseProduct(productJson: ProductJson): Product {
             productID: productJson.productId,
             productName: productJson.productName,
             serviceID: productJson.serviceId,
-            skuID: productJson.skuId,
+            skuName: productJson.skuName,
             type: productJson.type,
         },
         prices: [],
