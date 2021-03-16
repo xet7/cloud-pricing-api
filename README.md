@@ -53,7 +53,7 @@ query {
         { key: "instanceType", value: "t3.micro" },
         { key: "tenancy", value: "Shared" },
         { key: "operatingSystem", value: "Linux" },
-        { key: "capacityStatus", value: "Used" },
+        { key: "capacitystatus", value: "Used" },
         { key: "preInstalledSw", value: "NA" }
       ]
     },
