@@ -70,9 +70,7 @@ async function downloadAll(): Promise<PageJson[]> {
         };
         pages.push(page);
 
-        let filename = `az-items-${currentPageLink}`;
-        filename = filename.replace(/\//g, '-').replace(/\./g, '-').replace(/:/g, '-');
-        filename = `data/${filename}.json`;
+        let filename = `data/az-retail-page-${pageNumber}.json`;
 
         const dataString = JSON.stringify(resp.data)
         fs.writeFile(filename, dataString, (err) => {
@@ -94,7 +92,7 @@ async function downloadAll(): Promise<PageJson[]> {
 
 async function loadAll(): Promise<void> {
     config.logger.info(`Loading Azure Pricing Items...`);
-    for (const filename of glob.sync('data/az-items-*.json')) {
+    for (const filename of glob.sync('data/az-retail-page-*.json')) {
         try {
             await processFile(filename);
         } catch (e) {
@@ -105,7 +103,7 @@ async function loadAll(): Promise<void> {
 }
 
 async function processFile(filename: string): Promise<void> {
-    config.logger.info(`Processing File ${filename}`);
+    config.logger.info(`Processing file ${filename}`);
     const body = fs.readFileSync(filename);
     const json = <ItemsJson>JSON.parse(body.toString());
 
