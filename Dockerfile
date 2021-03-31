@@ -14,8 +14,6 @@ WORKDIR /usr/src/app
 RUN mkdir data
 COPY --from=build /usr/src/app/prod_node_modules ./node_modules
 COPY --from=build /usr/src/app/dist ./dist
-COPY --from=build /usr/src/app/docker-entrypoint.sh ./docker-entrypoint.sh
 COPY package*.json ./
-ENTRYPOINT ["sh", "/usr/src/app/docker-entrypoint.sh"]
 EXPOSE 4000
 CMD [ "npm", "run", "start" ]

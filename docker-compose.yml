@@ -5,16 +5,31 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
+    image: infracost/cloud-pricing-api
     ports: 
         - 4000:4000
     environment:
       - MONGODB_URI=mongodb://db:27017/cloudPricing
-      - UPDATE_CLOUD_PROVIDER=Azure
     depends_on: [db]
-    # volumes:
-    #   - ./data:/usr/src/app/data
+    volumes:
+      - ./data:/usr/src/app/data
     networks:
       - infracost
+
+  updater:
+    profiles: ["updater"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: infracost/cloud-pricing-api
+    environment:
+      - MONGODB_URI=mongodb://db:27017/cloudPricing
+    depends_on: [db]
+    volumes:
+      - ./data:/usr/src/app/data
+    networks:
+      - infracost
+    command: ["npm", "run", "update"]
 
   db:
     image: mongo:4.4
@@ -28,7 +43,6 @@ services:
  
 volumes:
   mongodb-data:
-
 
 networks:
   infracost:
