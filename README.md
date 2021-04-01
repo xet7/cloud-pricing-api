@@ -12,8 +12,6 @@ Infracost has a hosted version of this service. To get an API key [download infr
   * [Installation](#installation)
 * [Usage](#usage)
   * [Running](#running)
-* [Future work](#future-work)
-* [Contributing](#contributing)
 * [License](#license)
 
 ## Example requests
@@ -55,7 +53,7 @@ query {
         { key: "instanceType", value: "t3.micro" },
         { key: "tenancy", value: "Shared" },
         { key: "operatingSystem", value: "Linux" },
-        { key: "capacityStatus", value: "Used" },
+        { key: "capacitystatus", value: "Used" },
         { key: "preInstalledSw", value: "NA" }
       ]
     },
@@ -163,15 +161,6 @@ npm run start
 ```
 
 You can now access the GraphQL Playground at [http://localhost:4000/graphql](http://localhost:4000/graphql).
-
-## Future work
-
- * Additional vendors
- * A more user-friendly API - this will require adding mappings for all AWS services.
-
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 ## License
 
