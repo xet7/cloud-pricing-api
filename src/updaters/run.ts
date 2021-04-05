@@ -28,7 +28,9 @@ const updaters = {
 
 async function run(): Promise<void> {
   const { argv } = yargs
-    .usage('Usage: $0 --only=[aws:bulk,aws:spot,azure:retail,gcp:catalog,gcp:machineTypes]')
+    .usage(
+      'Usage: $0 --only=[aws:bulk,aws:spot,azure:retail,gcp:catalog,gcp:machineTypes]'
+    )
     .options({
       only: { type: 'string' },
     });

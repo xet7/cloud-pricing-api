@@ -8,6 +8,12 @@ import { upsertProducts } from '../db/upsert';
 
 const baseUrl = 'https://prices.azure.com/api/retail/prices';
 
+const reservationTermMapping: { [key: string]: string } = {
+  '1 Year': '1 yr',
+  '3 Years': '3 yr',
+  '5 Years': '5 yr',
+};
+
 type ItemsJson = {
   Items: ProductJson[];
   nextPageToken: string;
@@ -57,7 +63,6 @@ async function downloadAll(): Promise<PageJson[]> {
   let currentPageLink = '';
   let pageNumber = 1;
   do {
-
     if (!currentPageLink) {
       currentPageLink = `${baseUrl}`;
     }
@@ -71,9 +76,9 @@ async function downloadAll(): Promise<PageJson[]> {
     };
     pages.push(page);
 
-    let filename = `data/az-retail-page-${pageNumber}.json`;
+    const filename = `data/az-retail-page-${pageNumber}.json`;
 
-    const dataString = JSON.stringify(resp.data)
+    const dataString = JSON.stringify(resp.data);
     fs.writeFile(filename, dataString, (err) => {
       if (err) throw err;
     });
@@ -81,11 +86,10 @@ async function downloadAll(): Promise<PageJson[]> {
     count = resp.data.Count;
     currentPageLink = resp.data.NextPageLink;
 
-    pageNumber += 1
+    pageNumber += 1;
     if (pageNumber % 100 === 0) {
       config.logger.info(`Downloaded ${pageNumber} pages...`);
     }
-
   } while (count === 100);
 
   return pages;
@@ -117,22 +121,26 @@ async function processFile(filename: string): Promise<void> {
 }
 
 function parseProduct(productJson: ProductJson): Product {
+  let sku = productJson.skuId;
+
+  // For VMs use the productId and SKU name so we can group all the purchase options into the same product
+  if (productJson.serviceName === 'Virtual Machines') {
+    sku = `${productJson.productId}/${productJson.armSkuName}`;
+  }
+
   const product: Product = {
     productHash: '',
-    sku: productJson.skuId,
+    sku,
     vendorName: 'azure',
     region: productJson.armRegionName || null,
     service: productJson.serviceName,
     productFamily: productJson.serviceFamily,
     attributes: {
       effectiveStartDate: productJson.effectiveStartDate,
-      meterId: productJson.meterId,
-      meterName: productJson.meterName,
-      productID: productJson.productId,
+      productId: productJson.productId,
       productName: productJson.productName,
-      serviceID: productJson.serviceId,
-      skuName: productJson.skuName,
-      type: productJson.type,
+      serviceId: productJson.serviceId,
+      armSkuName: productJson.armSkuName,
     },
     prices: [],
   };
@@ -146,14 +154,34 @@ function parseProduct(productJson: ProductJson): Product {
 function parsePrices(product: Product, productJson: ProductJson): Price[] {
   const prices: Price[] = [];
 
+  let purchaseOption = productJson.type;
+  if (productJson.skuName.endsWith(' Spot')) {
+    purchaseOption = 'Spot';
+  }
+
+  if (productJson.skuName.endsWith(' Low Priority')) {
+    purchaseOption = 'Low Priority';
+  }
+
   const price: Price = {
     priceHash: '',
-    purchaseOption: productJson.type,
+    purchaseOption,
     unit: productJson.unitOfMeasure,
     USD: `${productJson.unitPrice}`,
     effectiveDateStart: productJson.effectiveStartDate,
     startUsageAmount: productJson.tierMinimumUnits,
+    description: productJson.meterName,
   };
+
+  if (productJson.reservationTerm) {
+    price.termLength = reservationTermMapping[productJson.reservationTerm];
+
+    if (!price.termLength) {
+      config.logger.warn(
+        `Could not map reservation term for value ${productJson.reservationTerm}`
+      );
+    }
+  }
 
   price.priceHash = generatePriceHash(product, price);
 
