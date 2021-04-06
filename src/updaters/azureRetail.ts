@@ -121,11 +121,11 @@ async function processFile(filename: string): Promise<void> {
 }
 
 function parseProduct(productJson: ProductJson): Product {
-  let sku = productJson.skuId;
+  let sku = `${productJson.skuId}/${productJson.meterId}`;
 
-  // For VMs use the productId and SKU name so we can group all the purchase options into the same product
+  // Use the ARM SKU Name for VMs so we can group the purchase options
   if (productJson.serviceName === 'Virtual Machines') {
-    sku = `${productJson.productId}/${productJson.armSkuName}`;
+    sku = `${productJson.productId}/${productJson.armSkuName}/${productJson.meterId}`;
   }
 
   const product: Product = {
@@ -140,7 +140,11 @@ function parseProduct(productJson: ProductJson): Product {
       productId: productJson.productId,
       productName: productJson.productName,
       serviceId: productJson.serviceId,
+      serviceFamily: productJson.serviceFamily,
+      skuName: productJson.skuName,
       armSkuName: productJson.armSkuName,
+      meterId: productJson.meterId,
+      meterName: productJson.meterName,
     },
     prices: [],
   };
@@ -170,7 +174,6 @@ function parsePrices(product: Product, productJson: ProductJson): Price[] {
     USD: `${productJson.unitPrice}`,
     effectiveDateStart: productJson.effectiveStartDate,
     startUsageAmount: productJson.tierMinimumUnits,
-    description: productJson.meterName,
   };
 
   if (productJson.reservationTerm) {
