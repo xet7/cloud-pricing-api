@@ -1,5 +1,5 @@
 import fs from 'fs';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import glob from 'glob';
 import config from '../config';
 import { Product, Price } from '../db/types';
@@ -20,9 +20,7 @@ type ItemsJson = {
 };
 
 type PageJson = {
-  currentPageLink: string;
-  nextPageLink: string;
-  count: string;
+  NextPageLink: string;
 };
 
 type ProductJson = {
@@ -59,22 +57,14 @@ async function downloadAll(): Promise<PageJson[]> {
 
   const pages: PageJson[] = [];
 
-  let count = 100;
-  let currentPageLink = '';
+  let currentPageLink: string | null = null;
   let pageNumber = 1;
   do {
     if (!currentPageLink) {
       currentPageLink = `${baseUrl}`;
     }
 
-    const resp = await axios.get(currentPageLink);
-
-    const page: PageJson = {
-      currentPageLink: `${currentPageLink}`,
-      nextPageLink: resp.data.NextPageLink,
-      count: resp.data.Count,
-    };
-    pages.push(page);
+    const resp: AxiosResponse<PageJson> = await axios.get(currentPageLink);
 
     const filename = `data/az-retail-page-${pageNumber}.json`;
 
@@ -83,14 +73,13 @@ async function downloadAll(): Promise<PageJson[]> {
       if (err) throw err;
     });
 
-    count = resp.data.Count;
     currentPageLink = resp.data.NextPageLink;
 
     pageNumber += 1;
     if (pageNumber % 100 === 0) {
       config.logger.info(`Downloaded ${pageNumber} pages...`);
     }
-  } while (count === 100);
+  } while (currentPageLink != null);
 
   return pages;
 }
