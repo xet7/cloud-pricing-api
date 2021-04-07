@@ -83,12 +83,14 @@ Response:
 }
 ```
 
+> More examples can be found in `./examples/queries`
+
 ## Getting started
 
 ### Prerequisites
 
- * Node.js >= 12.18.0
- * MongoDB >= 3.6
+ * Node.js >= 14.15.0
+ * MongoDB >= 4.4
 
 ### Installation
 
@@ -116,7 +118,13 @@ Response:
   npm install
   ```
 
-4. Update the pricing data
+4. Run npm build
+
+  ```sh
+  npm run-script build
+  ```
+
+5. Update the pricing data
    **Note: this downloads several GB of data**
 
   ```sh
@@ -124,8 +132,17 @@ Response:
   ```
 
   If you only want to download from a single source you can run:
+
+  `Example: AWS Bulk`
+
   ```sh
   npm run update:dev -- --only=aws:bulk
+  ```
+
+  `Example: Azure Retail`
+  
+  ```sh
+  npm run update -- --only=azure:retail
   ```
 
 ## Usage
@@ -139,7 +156,7 @@ npm run dev
 ### Running in production
 
 ```
-npm build
+npm run-script build
 npm run start
 ```
 

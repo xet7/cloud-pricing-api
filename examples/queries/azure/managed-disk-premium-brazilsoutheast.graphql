@@ -1,0 +1,21 @@
+# Write your query or mutation here
+query {
+  products(
+    filter: {
+      vendorName: "azure",
+      sku: "P60 LRS",
+      productFamily: "Storage",
+      region: "brazilsoutheast",
+      attributeFilters: [
+        { key: "productName", value: "Premium SSD Managed Disks" },
+      ]
+    },
+  ) {
+    prices(
+      filter: {
+        purchaseOption: "Consumption",
+        unit: "1/Month"
+      },
+    ) { USD }
+  }
+}

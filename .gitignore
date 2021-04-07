@@ -2,6 +2,14 @@
 /data
 /creds
 .env
-/tmp
-/dist
+.env.sh
 .env.local
+
+# Temp
+/tmp
+
+# Dist
+/dist
+
+# other file types
+*.tgz 
