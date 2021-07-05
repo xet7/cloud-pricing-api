@@ -162,7 +162,7 @@ function parsePrices(product: Product, productJson: ProductJson): Price[] {
     unit: productJson.unitOfMeasure,
     USD: `${productJson.unitPrice}`,
     effectiveDateStart: productJson.effectiveStartDate,
-    startUsageAmount: productJson.tierMinimumUnits,
+    startUsageAmount: productJson.tierMinimumUnits.toString(),
   };
 
   if (productJson.reservationTerm) {
