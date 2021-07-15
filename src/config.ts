@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import pino from 'pino';
 import { MongoClient, Db } from 'mongodb';
 import NodeCache from 'node-cache';
-import { Pool } from 'pg';
+import { Pool, PoolConfig } from 'pg';
 
 dotenv.config({ path: '.env.local' });
 dotenv.config();
@@ -56,11 +56,23 @@ async function db(): Promise<Db> {
 let pgPool: Pool;
 async function pg(): Promise<Pool> {
   if (!pgPool) {
-    pgPool = new Pool({
-      connectionString:
-        process.env.POSTGRES_URI ||
-        'postgresql://postgres:my_password@localhost:5432/cloudPricing',
-    });
+    let poolConfig: PoolConfig = {
+      user: process.env.POSTGRES_USER || 'postgres',
+      database: process.env.POSTGRES_DB || 'cloudPricing',
+      password: process.env.POSTGRES_PASSWORD || 'my_password',
+      port: Number(process.env.POSTGRES_PORT) || 5432,
+      host: process.env.POSTGRES_HOST || 'localhost',
+    };
+
+    if (process.env.POSTGRES_URI) {
+      poolConfig = {
+        connectionString:
+          process.env.POSTGRES_URI ||
+          'postgresql://postgres:my_password@localhost:5432/cloudPricing',
+      };
+    }
+
+    pgPool = new Pool(poolConfig);
   }
   return pgPool;
 }
