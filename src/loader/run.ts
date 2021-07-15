@@ -15,7 +15,7 @@ async function run(): Promise<void> {
 
   const { argv } = yargs
     .usage(
-      'Usage: $0 --path=[ location of *_product.csv files, default: ./data/products ]'
+      'Usage: $0 --path=[ location of *.csv.gz files, default: ./data/products ]'
     )
     .options({
       path: { type: 'string', default: './data/products' },
