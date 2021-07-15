@@ -1,11 +1,27 @@
 import { IResolvers } from 'graphql-tools';
 import mingo from 'mingo';
 import format from 'pg-format';
-import { Product, Price } from './db/types';
+import { Product, Price, ProductAttributes } from './db/types';
 import currency from './utils/currency';
 import config from './config';
 
 const productLimit = 1000;
+
+// In order to make upserting more efficient, prices in postgres are stored as a map of priceHash -> prices.
+type ProductWithPriceMap = {
+  productHash: string;
+  sku: string;
+  vendorName: string;
+  region: string | null;
+  service: string;
+  productFamily: string;
+  attributes: ProductAttributes;
+  prices: { [priceHash: string]: Price[] };
+};
+
+function flattenPrices(p: ProductWithPriceMap): Product {
+  return { ...p, prices: Object.values(p.prices).flat() };
+}
 
 type MongoDbFilter = { [attr: string]: { [op: string]: string | RegExp } };
 
@@ -65,11 +81,9 @@ const resolvers: IResolvers = {
         config.productTableName,
         productLimit
       );
-
       const response = await pool.query(sql);
-      const products = response.rows as Product[];
-
-      return products;
+      const products = response.rows as ProductWithPriceMap[];
+      return products.map((product) => flattenPrices(product));
     },
   },
   Product: {
@@ -149,7 +163,8 @@ function transformFilter(filter: Filter): MongoDbFilter {
 
 async function convertCurrencies(prices: Price[]) {
   for (const price of prices) {
-    if (price.USD === null && price.CNY !== null) {
+    // use == instead of === so we're checking for null || undefined.
+    if (price.USD == null && price.CNY != null) {
       const usd = await currency.convert('CNY', 'USD', Number(price.CNY));
       price.USD = usd.toString();
     }

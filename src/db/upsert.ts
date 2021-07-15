@@ -1,83 +1,82 @@
-import _ from 'lodash';
-import { BulkWriteUpdateOneOperation, BulkWriteOpResultObject } from 'mongodb';
-import config from '../config';
+import format from 'pg-format';
 import { Product, Price } from './types';
+import config from '../config';
 
 const batchSize = 1000;
 
 async function upsertProducts(products: Product[]): Promise<void> {
-  const db = await config.db();
+  const pool = await config.pg();
 
-  const promises: Promise<BulkWriteOpResultObject>[] = [];
+  const insertSql = format(
+    `INSERT INTO %I ("productHash", "sku", "vendorName", "region", "service", "productFamily", "attributes", "prices") VALUES `,
+    config.productTableName
+  );
 
-  let batchUpdates: BulkWriteUpdateOneOperation<Product>[] = [];
+  const onConflictSql = format(
+    ` 
+    ON CONFLICT ("productHash") DO UPDATE SET
+    "sku" = excluded."sku",
+    "vendorName" = excluded."vendorName",
+    "region" = excluded."region",
+    "service" = excluded."service",
+    "productFamily" = excluded."productFamily",
+    "attributes" = excluded."attributes",
+    "prices" = %I."prices" || excluded."prices"        
+    `,
+    config.productTableName
+  );
 
-  products.forEach((product) => {
-    batchUpdates.push({
-      updateOne: {
-        filter: {
-          productHash: product.productHash,
-        },
-        update: {
-          $set: _.omit(product, 'prices'),
-          $pull: {
-            prices: {
-              priceHash: { $in: product.prices.map((p) => p.priceHash) },
-            },
-          },
-        },
-        upsert: true,
-      },
+  // const response = await pool.query(sql);
+
+  const batchProducts: string[] = [];
+  // const batchPrices: Prisma.PriceCreateManyInput[] = [];
+
+  for (const product of products) {
+    const pricesMap: { [priceHash: string]: Price[] } = {};
+
+    product.prices.forEach((price) => {
+      if (pricesMap[price.priceHash]) {
+        pricesMap[price.priceHash].push(price);
+      } else {
+        pricesMap[price.priceHash] = [price];
+      }
     });
 
-    batchUpdates.push({
-      updateOne: {
-        filter: {
-          productHash: product.productHash,
-        },
-        update: {
-          $set: _.omit(product, 'prices'),
-          $push: { prices: { $each: product.prices } },
-        },
-        upsert: true,
-      },
-    });
+    batchProducts.push(
+      format(
+        `(%L, %L, %L, %L, %L, %L, %L, %L)`,
+        product.productHash,
+        product.sku,
+        product.vendorName,
+        product.region,
+        product.service,
+        product.productFamily || '',
+        product.attributes,
+        pricesMap
+      )
+    );
 
-    if (batchUpdates.length >= batchSize) {
-      promises.push(db.collection('products').bulkWrite(batchUpdates));
-      batchUpdates = [];
+    if (batchProducts.length > batchSize) {
+      await pool.query(insertSql + batchProducts.join(',') + onConflictSql);
+      batchProducts.length = 0;
     }
-  });
-
-  if (batchUpdates.length > 0) {
-    promises.push(db.collection('products').bulkWrite(batchUpdates));
   }
-  await Promise.all(promises);
+
+  if (batchProducts.length > 0) {
+    await pool.query(insertSql + batchProducts.join(',') + onConflictSql);
+  }
 }
 
 async function upsertPrice(product: Product, price: Price): Promise<void> {
-  const db = await config.db();
+  const pool = await config.pg();
 
-  await db.collection('products').updateOne(
-    {
-      productHash: product.productHash,
-    },
-    {
-      $pull: {
-        prices: {
-          priceHash: price.priceHash,
-        },
-      },
-    }
-  );
-
-  await db.collection('products').updateOne(
-    {
-      productHash: product.productHash,
-    },
-    {
-      $push: { prices: price },
-    }
+  await pool.query(
+    format(
+      `UPDATE %I SET "prices" = "prices" || %L WHERE "productHash" = %L`,
+      config.productTableName,
+      { [price.priceHash]: [price] },
+      product.productHash
+    )
   );
 }
 
