@@ -31,8 +31,15 @@ async function upsertProducts(products: Product[]): Promise<void> {
   const productHashToInsertRow: Map<string, string> = new Map();
 
   for (const product of products) {
-    if (productHashToInsertRow.size > batchSize || productHashToInsertRow.has(product.productHash)) {
-      await pool.query(insertSql + Array.from(productHashToInsertRow.values()).join(',') + onConflictSql);
+    if (
+      productHashToInsertRow.size > batchSize ||
+      productHashToInsertRow.has(product.productHash)
+    ) {
+      await pool.query(
+        insertSql +
+          Array.from(productHashToInsertRow.values()).join(',') +
+          onConflictSql
+      );
       productHashToInsertRow.clear();
     }
 
@@ -62,8 +69,12 @@ async function upsertProducts(products: Product[]): Promise<void> {
     );
   }
 
-  if (productHashToInsertRow.size > 0 ) {
-    await pool.query(insertSql + Array.from(productHashToInsertRow.values()).join(',') + onConflictSql);
+  if (productHashToInsertRow.size > 0) {
+    await pool.query(
+      insertSql +
+        Array.from(productHashToInsertRow.values()).join(',') +
+        onConflictSql
+    );
   }
 }
 

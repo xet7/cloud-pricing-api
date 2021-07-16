@@ -5,6 +5,7 @@ import config from '../config';
 import { Price, Product } from '../db/types';
 import { generatePriceHash, generateProductHash } from '../db/helpers';
 import { upsertProducts } from '../db/upsert';
+import { findProducts } from '../db/query';
 
 const machineTypeDescriptionLookups: {
   [key: string]: { [key: string]: string };
@@ -192,7 +193,7 @@ async function calculateAmountFromTotal(
     descRegex = new RegExp(`^Preemptible ${desc}`);
   }
 
-  const matchedProduct = await findProducts(product.region, descRegex);
+  const matchedProduct = await findComputeProducts(product.region, descRegex);
 
   if (!matchedProduct) {
     config.logger.warn(
@@ -202,7 +203,7 @@ async function calculateAmountFromTotal(
   }
 
   const matchedPrice =
-    matchedProduct.prices.find((p) => p.endUsageAmount === null) ||
+    matchedProduct.prices.find((p) => p.endUsageAmount == null) ||
     matchedProduct.prices[0];
   const amount = new Decimal(matchedPrice.USD || 0);
   const effectiveDateStart =
@@ -229,8 +230,8 @@ async function calculateAmountFromCpuAndMem(
     memDescRegex = new RegExp(`^Preemptible ${memDesc}`);
   }
 
-  const cpuProduct = await findProducts(product.region, cpuDescRegex);
-  const memProduct = await findProducts(product.region, memDescRegex);
+  const cpuProduct = await findComputeProducts(product.region, cpuDescRegex);
+  const memProduct = await findComputeProducts(product.region, memDescRegex);
 
   if (!cpuProduct) {
     config.logger.warn(
@@ -258,10 +259,10 @@ async function calculateAmountFromCpuAndMem(
   }
 
   const cpuPrice =
-    cpuProduct.prices.find((p) => p.endUsageAmount === null) ||
+    cpuProduct.prices.find((p) => p.endUsageAmount == null) ||
     cpuProduct.prices[0];
   const memPrice =
-    memProduct.prices.find((p) => p.endUsageAmount === null) ||
+    memProduct.prices.find((p) => p.endUsageAmount == null) ||
     memProduct.prices[0];
 
   const amount = cpu
@@ -277,19 +278,25 @@ async function calculateAmountFromCpuAndMem(
   return { amount, effectiveDateStart };
 }
 
-async function findProducts(
+async function findComputeProducts(
   region: string | null,
   description: RegExp
 ): Promise<Product | null> {
-  const db = await config.db();
+  const products = await findProducts(
+    {
+      vendorName: 'gcp',
+      service: 'Compute Engine',
+      productFamily: 'Compute',
+      region: region || '',
+    },
+    [
+      // eslint-disable-next-line camelcase
+      { key: 'description', value_regex: `/${description.source}/` },
+    ],
+    1
+  );
 
-  return db.collection('products').findOne<Product>({
-    vendorName: 'gcp',
-    service: 'Compute Engine',
-    productFamily: 'Compute',
-    region,
-    'attributes.description': { $regex: description },
-  });
+  return products.length > 0 ? products[0] : null;
 }
 
 export default {
