@@ -26,14 +26,18 @@ async function upsertProducts(products: Product[]): Promise<void> {
     config.productTableName
   );
 
-  // const response = await pool.query(sql);
-
-  const batchProducts: string[] = [];
-  // const batchPrices: Prisma.PriceCreateManyInput[] = [];
+  // Collect products for bulk update in a map so we can avoid updating the same product in a single batch since
+  // postgres doesn't allow that.
+  const productHashToInsertRow: Map<string, string> = new Map();
 
   for (const product of products) {
-    const pricesMap: { [priceHash: string]: Price[] } = {};
+    if (productHashToInsertRow.size > batchSize || productHashToInsertRow.has(product.productHash)) {
+      await pool.query(insertSql + Array.from(productHashToInsertRow.values()).join(',') + onConflictSql);
+      productHashToInsertRow.clear();
+    }
 
+    // Prices are stored as { pricesHash: prices[] } so we can update/merge them using the postgres jsonb concatenation
+    const pricesMap: { [priceHash: string]: Price[] } = {};
     product.prices.forEach((price) => {
       if (pricesMap[price.priceHash]) {
         pricesMap[price.priceHash].push(price);
@@ -42,7 +46,8 @@ async function upsertProducts(products: Product[]): Promise<void> {
       }
     });
 
-    batchProducts.push(
+    productHashToInsertRow.set(
+      product.productHash,
       format(
         `(%L, %L, %L, %L, %L, %L, %L, %L)`,
         product.productHash,
@@ -55,15 +60,10 @@ async function upsertProducts(products: Product[]): Promise<void> {
         pricesMap
       )
     );
-
-    if (batchProducts.length > batchSize) {
-      await pool.query(insertSql + batchProducts.join(',') + onConflictSql);
-      batchProducts.length = 0;
-    }
   }
 
-  if (batchProducts.length > 0) {
-    await pool.query(insertSql + batchProducts.join(',') + onConflictSql);
+  if (productHashToInsertRow.size > 0 ) {
+    await pool.query(insertSql + Array.from(productHashToInsertRow.values()).join(',') + onConflictSql);
   }
 }
 
