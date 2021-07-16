@@ -9,6 +9,11 @@ import { PoolClient } from 'pg';
 import format from 'pg-format';
 import yargs from 'yargs';
 import config from '../config';
+import {
+  createProductsTable,
+  createProductsTableIndex,
+  renameProductsTable,
+} from '../db/setup';
 
 async function run(): Promise<void> {
   const pool = await config.pg();
@@ -24,22 +29,12 @@ async function run(): Promise<void> {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    await client.query(`
-      CREATE TABLE "ProductLoad"
-      (
-        "productHash" text,
-        sku text NOT NULL,
-        "vendorName" text NOT NULL,
-        region text,
-        service text NOT NULL,
-        "productFamily" text DEFAULT ''::text NOT NULL,
-        attributes jsonb NOT NULL,
-        prices jsonb NOT NULL, 
-        CONSTRAINT "ProductLoad_pkey"  PRIMARY KEY("productHash")
-      )   
-    `);
+
+    await createProductsTable(client, 'ProductLoad');
 
     await loadFiles(argv.path, client);
+
+    await createProductsTableIndex(client, 'ProductLoad');
 
     await replaceProductTable(client);
 
@@ -54,27 +49,10 @@ async function run(): Promise<void> {
 
 async function replaceProductTable(client: PoolClient) {
   await client.query(
-    `CREATE INDEX "ProductLoad_service_region_index" ON public."ProductLoad" USING btree (service, region)`
-  );
-
-  await client.query(
     format(`DROP TABLE IF EXISTS %I`, config.productTableName)
   );
-  await client.query(
-    format(`ALTER TABLE "ProductLoad" RENAME TO %I`, config.productTableName)
-  );
-  await client.query(
-    format(
-      `ALTER INDEX "ProductLoad_pkey" RENAME TO %I`,
-      `${config.productTableName}_pkey`
-    )
-  );
-  await client.query(
-    format(
-      `ALTER INDEX "ProductLoad_service_region_index" RENAME TO %I`,
-      `${config.productTableName}_service_region_index`
-    )
-  );
+
+  await renameProductsTable(client, 'ProductLoad', config.productTableName);
 }
 
 async function loadFiles(path: string, client: PoolClient): Promise<void> {
