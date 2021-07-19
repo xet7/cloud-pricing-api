@@ -3,7 +3,7 @@ import path from 'path';
 import config from '../config';
 import updaters from '../updaters/run';
 
-const dir = path.join(__dirname, '../data');
+const dir = path.join(__dirname, '../../data');
 
 if (!fs.existsSync(dir)) {
   fs.mkdirSync(dir);

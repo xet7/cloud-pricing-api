@@ -3,7 +3,7 @@ import path from 'path';
 import config from '../config';
 import dumper from '../dumper/run';
 
-const dir = path.join(__dirname, '../data/products');
+const dir = path.join(__dirname, '../../data/products');
 
 if (!fs.existsSync(dir)) {
   fs.mkdirSync(dir);
