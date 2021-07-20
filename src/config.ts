@@ -3,6 +3,8 @@ import pino from 'pino';
 import { MongoClient, Db } from 'mongodb';
 import NodeCache from 'node-cache';
 import { Pool, PoolConfig } from 'pg';
+import tmp from 'tmp';
+import fs from 'fs';
 
 dotenv.config({ path: '.env.local' });
 dotenv.config();
@@ -77,6 +79,18 @@ async function pg(): Promise<Pool> {
   return pgPool;
 }
 
+function generateGcpKeyFile(): string {
+  if (process.env.GCP_KEY_FILE) {
+    return process.env.GCP_KEY_FILE;
+  }
+
+  const tmpFile = tmp.fileSync({ postfix: '.json' });
+  tmp.setGracefulCleanup();
+
+  fs.writeFileSync(tmpFile.name, process.env.GCP_KEY_FILE_CONTENT || '');
+  return tmpFile.name;
+}
+
 const logger = pino({
   level: process.env.LOG_LEVEL || 'info',
   prettyPrint: process.env.NODE_ENV !== 'production',
@@ -92,8 +106,7 @@ const config = {
   cache,
   port: Number(process.env.PORT) || 4000,
   gcpApiKey: process.env.GCP_API_KEY,
-  gcpKeyFile: process.env.GCP_KEY_FILE,
-  gcpKeyFileContent: process.env.GCP_KEY_FILE_CONTENT,
+  gcpKeyFile: generateGcpKeyFile(),
   gcpProject: process.env.GCP_PROJECT,
   mongoDbUri:
     process.env.MONGODB_URI || 'mongodb://localhost:27017/cloudPricing',

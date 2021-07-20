@@ -15,7 +15,9 @@ export async function run(): Promise<void> {
       client = await pool.connect();
       break;
     } catch (e) {
-      config.logger.error(`Waiting for PostgreSQL to become available: ${e.message}`);
+      config.logger.error(
+        `Waiting for PostgreSQL to become available: ${e.message}`
+      );
       await new Promise((resolve) => setTimeout(resolve, backOffSecs * 1000));
     }
   }
