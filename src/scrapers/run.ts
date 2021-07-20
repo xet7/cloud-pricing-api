@@ -6,23 +6,23 @@ import azureRetail from './azureRetail';
 import gcpCatalog from './gcpCatalog';
 import gcpMachineTypes from './gcpMachineTypes';
 
-interface UpdaterConfig {
+interface ScraperConfig {
   vendor: string;
   source: string;
-  updaterFunc: () => void;
+  scraperFunc: () => void;
 }
 
-const updaters = {
+const Scrapers = {
   aws: {
-    bulk: awsBulk.update,
-    spot: awsSpot.update,
+    bulk: awsBulk.scrape,
+    spot: awsSpot.scrape,
   },
   azure: {
-    retail: azureRetail.update,
+    retail: azureRetail.scrape,
   },
   gcp: {
-    catalog: gcpCatalog.update,
-    machineTypes: gcpMachineTypes.update,
+    catalog: gcpCatalog.scrape,
+    machineTypes: gcpMachineTypes.scrape,
   },
 };
 
@@ -35,31 +35,31 @@ async function run(): Promise<void> {
       only: { type: 'string' },
     });
 
-  const updaterConfigs: UpdaterConfig[] = [];
+  const scraperConfigs: ScraperConfig[] = [];
 
-  Object.entries(updaters).forEach((updaterEntry) => {
-    const [vendor, vendorUpdaters] = updaterEntry;
-    Object.entries(vendorUpdaters).forEach((vendorUpdaterEntry) => {
-      const [source, updaterFunc] = vendorUpdaterEntry;
+  Object.entries(Scrapers).forEach((scraperEntry) => {
+    const [vendor, vendorScrapers] = scraperEntry;
+    Object.entries(vendorScrapers).forEach((vendorScraperEntry) => {
+      const [source, scraperFunc] = vendorScraperEntry;
 
       if (
         !argv.only ||
         (argv.only && argv.only.split(',').includes(`${vendor}:${source}`))
       ) {
-        updaterConfigs.push({
+        scraperConfigs.push({
           vendor,
           source,
-          updaterFunc,
+          scraperFunc,
         });
       }
     });
   });
 
-  for (const updaterConfig of updaterConfigs) {
+  for (const scraperConfig of scraperConfigs) {
     config.logger.info(
-      `Running update function for ${updaterConfig.vendor}:${updaterConfig.source}`
+      `Running update function for ${scraperConfig.vendor}:${scraperConfig.source}`
     );
-    await updaterConfig.updaterFunc();
+    await scraperConfig.scraperFunc();
   }
 }
 

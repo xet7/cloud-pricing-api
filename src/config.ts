@@ -5,9 +5,21 @@ import NodeCache from 'node-cache';
 import { Pool, PoolConfig } from 'pg';
 import tmp from 'tmp';
 import fs from 'fs';
+import path from 'path';
 
 dotenv.config({ path: '.env.local' });
 dotenv.config();
+
+const createPaths = [
+  path.join(__dirname, '../data'),
+  path.join(__dirname, '../data/products'),
+];
+
+createPaths.forEach((path) => {
+  if (!fs.existsSync(path)) {
+    fs.mkdirSync(path);
+  }
+});
 
 let client: MongoClient;
 
@@ -103,6 +115,8 @@ const config = {
   db,
   pg,
   productTableName: 'Product',
+  baseCloudPricingEndpoint: process.env.BASE_CLOUD_PRICING_ENDPOINT || 'https://pricing.api.infracost.io',
+  infracostAPIKey: process.env.INFRACOST_API_KEY,
   cache,
   port: Number(process.env.PORT) || 4000,
   gcpApiKey: process.env.GCP_API_KEY,

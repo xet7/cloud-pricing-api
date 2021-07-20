@@ -88,6 +88,13 @@ async function loadFile(client: PoolClient, filename: string): Promise<void> {
   return promisifiedPipeline(fs.createReadStream(filename), gunzip, pgCopy);
 }
 
-export default {
-  run,
-};
+config.logger.info('Starting: loading data into DB');
+run()
+  .then(() => {
+    config.logger.info('Completed: loading data into DB');
+    process.exit(0);
+  })
+  .catch((err) => {
+    config.logger.error(err);
+    process.exit(1);
+  });

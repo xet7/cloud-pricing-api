@@ -56,7 +56,7 @@ const machineTypeOverrides: {
   'e2-medium': { cpu: 1 },
 };
 
-async function update(): Promise<void> {
+async function scrape(): Promise<void> {
   const auth = new google.auth.GoogleAuth({
     keyFile: config.gcpKeyFile,
     scopes: ['https://www.googleapis.com/auth/cloud-platform'],
@@ -300,5 +300,5 @@ async function findComputeProducts(
 }
 
 export default {
-  update,
+  scrape,
 };

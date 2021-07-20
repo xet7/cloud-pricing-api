@@ -42,7 +42,7 @@ type SpotJson = {
   };
 };
 
-async function update(): Promise<void> {
+async function scrape(): Promise<void> {
   const jsonData = await downloadEc2();
   await loadEc2(jsonData);
 }
@@ -159,5 +159,5 @@ async function findComputeProducts(
 }
 
 export default {
-  update,
+  scrape,
 };

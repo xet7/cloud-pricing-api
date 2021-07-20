@@ -49,7 +49,7 @@ type TieredRateJson = {
   };
 };
 
-async function update(): Promise<void> {
+async function scrape(): Promise<void> {
   await downloadAll();
   await loadAll();
 }
@@ -229,5 +229,5 @@ function parsePrices(product: Product, productJson: ProductJson): Price[] {
 }
 
 export default {
-  update,
+  scrape,
 };

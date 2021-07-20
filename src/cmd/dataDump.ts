@@ -54,6 +54,13 @@ async function dumpFile(client: PoolClient, outfile: string): Promise<void> {
   return promisifiedPipeline(copyStream, gzip, fileStream);
 }
 
-export default {
-  run,
-};
+config.logger.info('Starting: creating dump of DB data');
+run()
+  .then(() => {
+    config.logger.info('Completed: creating dump of DB data');
+    process.exit(0);
+  })
+  .catch((err) => {
+    config.logger.error(err);
+    process.exit(1);
+  });
