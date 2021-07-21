@@ -10,6 +10,7 @@
 
     "db:setup": "node dist/cmd/dbSetup.js",
     "data:scrape": "node dist/cmd/dataScrape.js",
+    "data:dump": "node dist/cmd/dataDump.js",
     "data:download": "node dist/cmd/dataDownload.js",
     "data:load": "node dist/cmd/dataLoad.js",
     "job:init": "npm run db:setup && npm run job:update",
@@ -17,6 +18,7 @@
 
     "db:setup:dev": "ts-node src/cmd/dbSetup.ts",
     "data:scrape:dev": "ts-node src/cmd/dataScrape.ts",
+    "data:dump:dev": "ts-node src/cmd/dataDump.ts",
     "data:download:dev": "ts-node src/cmd/dataDownload.ts",
     "data:load:dev": "ts-node src/cmd/dataLoad.ts",
     "job:init:dev": "npm run db:setup:dev && npm run job:update:dev",
