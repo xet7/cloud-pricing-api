@@ -59,6 +59,7 @@
     "pino-http": "^5.2.0",
     "pino-pretty": "^4.0.0",
     "prettier": "^2.1.1",
+    "progress": "^2.0.3",
     "tmp": "^0.2.1",
     "yargs": "^15.4.1"
   },
@@ -74,6 +75,7 @@
     "@types/pg-format": "^1.0.1",
     "@types/pino-http": "^5.0.5",
     "@types/prettier": "^2.1.1",
+    "@types/progress": "^2.0.4",
     "@types/tmp": "^0.2.1",
     "@types/yargs": "^15.0.7",
     "@typescript-eslint/eslint-plugin": "^4.3.0",

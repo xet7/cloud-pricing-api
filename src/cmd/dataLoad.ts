@@ -8,6 +8,7 @@ import { from as copyFrom } from 'pg-copy-streams';
 import { PoolClient } from 'pg';
 import format from 'pg-format';
 import yargs from 'yargs';
+import ProgressBar from 'progress';
 import config from '../config';
 import {
   createProductsTable,
@@ -85,7 +86,22 @@ async function loadFile(client: PoolClient, filename: string): Promise<void> {
     )`)
   );
 
-  return promisifiedPipeline(fs.createReadStream(filename), gunzip, pgCopy);
+  const { size } = fs.statSync(filename);
+  const progressBar = new ProgressBar(
+    '-> loading [:bar] :percent (:etas remaining)',
+    {
+      width: 40,
+      complete: '=',
+      incomplete: ' ',
+      renderThrottle: 500,
+      total: size,
+    }
+  );
+
+  const readStream = fs.createReadStream(filename);
+  readStream.on('data', (buffer) => progressBar.tick(buffer.length));
+
+  return promisifiedPipeline(readStream, gunzip, pgCopy);
 }
 
 config.logger.info('Starting: loading data into DB');

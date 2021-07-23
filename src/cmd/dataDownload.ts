@@ -1,7 +1,8 @@
 import axios, { AxiosResponse } from 'axios';
-import config from '../config';
+import ProgressBar from 'progress';
 import fs from 'fs';
 import yargs from 'yargs';
+import config from '../config';
 
 async function run() {
   const { argv } = yargs
@@ -28,17 +29,32 @@ async function run() {
     }
     process.exit(1);
   }
-  
-  const downloadUrl = latestResp.data.downloadUrl;
+
+  const { downloadUrl } = latestResp.data;
   config.logger.debug(`Downloading dump from ${downloadUrl}`);
   
   const writer = fs.createWriteStream(argv.out);
   await axios({
     method: 'get',
     url: downloadUrl,
-    responseType: 'stream'
-  }).then(function (resp) {
+    responseType: 'stream',
+  }).then((resp) => {
     return new Promise((resolve, reject) => {
+      const progressBar = new ProgressBar(
+        '-> downloading [:bar] :percent (:etas remaining)',
+        {
+          width: 40,
+          complete: '=',
+          incomplete: ' ',
+          renderThrottle: 500,
+          total: parseInt(resp.headers['content-length'], 10),
+        }
+      );
+
+      resp.data.on('data', (chunk: { length: number }) =>
+        progressBar.tick(chunk.length)
+      );
+
       resp.data.pipe(writer);
       
       let error: Error | null = null;
