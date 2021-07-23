@@ -76,6 +76,7 @@ async function pg(): Promise<Pool> {
       password: process.env.POSTGRES_PASSWORD || 'my_password',
       port: Number(process.env.POSTGRES_PORT) || 5432,
       host: process.env.POSTGRES_HOST || 'localhost',
+      max: Number(process.env.POSTGRES_MAX_CLIENTS) || 10
     };
 
     if (process.env.POSTGRES_URI) {
