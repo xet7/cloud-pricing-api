@@ -90,61 +90,81 @@ Response:
 ### Prerequisites
 
  * Node.js >= 14.15.0
- * MongoDB >= 4.4
+ * Postgres >= 12
 
 ### Installation
 
-1. Clone the repo
+1. Clone the repo:
 
-  ```sh
-  git clone https://github.com/infracost/cloud-pricing-api.git
-  cd cloud-pricing-api
-  ```
+    ```sh
+    git clone https://github.com/infracost/cloud-pricing-api.git
+    cd cloud-pricing-api
+    ```
 
-2. Add a `.env` file to point to your MongoDB server, e.g.
+2. Add a `.env` file to configure your Infracost API key and postgres server, e.g.
 
-  ```
-  MONGODB_URI=mongodb://localhost:27017/cloudPricing
+    ```
+    POSTGRES_URI=postgresql://postgres:my_password@localhost:5432/cloudPricing
 
-  # If using GCP
-  GCP_PROJECT=
-  GCP_API_KEY=<GCP API Key> # An API key with access to the GCP Cloud Billing API
-  GCP_KEY_FILE=gcp_creds.json # Credentials for a service account that has read-only access to Compute Engine.
-  ```
+    # If using GCP
+    GCP_PROJECT=
+    GCP_API_KEY=<GCP API Key> # An API key with access to the GCP Cloud Billing API
+    GCP_KEY_FILE=gcp_creds.json # Credentials for a service account that has read-only access to Compute Engine.
+    ```
 
-3. Install the npm packages
+3. Install the npm packages:
 
-  ```sh
-  npm install
-  ```
+    ```sh
+    npm install
+    ```
 
-4. Run npm build
+4. Run npm build:
 
-  ```sh
-  npm run-script build
-  ```
+    ```sh
+    npm run-script build
+    ```
 
-5. Update the pricing data
-   **Note: this downloads several GB of data**
 
-  ```sh
-  npm run update
-  ```
+5. Use the [Infracost CLI](https://github.com/infracost/infracost/blob/master/README.md#quick-start) to setup your API key:
 
-  If you only want to download from a single source you can run:
+    ```sh
+    infracost register
+    ```
+    The key is saved in `~/.config/infracost/credentials.yml`.
 
-  `Example: AWS Bulk`
+6. Download and install the pricing data:
+   
+    ```sh
+    npm run-script job:init
+     ```
 
-  ```sh
-  npm run update:dev -- --only=aws:bulk
-  ```
+7. Confirm installation:
 
-  `Example: Azure Retail`
-  
-  ```sh
-  npm run update -- --only=azure:retail
-  ```
+    ```shell
+    npm run data:status:dev
+   
+    >[
+      {
+        "vendorName": "aws",
+        "productCount": "609667"
+      },
+      {
+        "vendorName": "azure",
+        "productCount": "237286"
+      },
+      {
+        "vendorName": "gcp",
+        "productCount": "31723"
+      }
+    ]
+    ```
 
+8. Keep prices up to date by running the update job once a week:
+
+    ```sh
+    npm run-script job:update
+     ```
+   
 ## Usage
 
 ### Running locally
