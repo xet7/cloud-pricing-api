@@ -76,7 +76,7 @@ async function pg(): Promise<Pool> {
       password: process.env.POSTGRES_PASSWORD || 'my_password',
       port: Number(process.env.POSTGRES_PORT) || 5432,
       host: process.env.POSTGRES_HOST || 'localhost',
-      max: Number(process.env.POSTGRES_MAX_CLIENTS) || 10
+      max: Number(process.env.POSTGRES_MAX_CLIENTS) || 10,
     };
 
     if (process.env.POSTGRES_URI) {
@@ -116,7 +116,9 @@ const config = {
   db,
   pg,
   productTableName: 'Product',
-  baseCloudPricingEndpoint: process.env.BASE_CLOUD_PRICING_ENDPOINT || 'https://pricing.api.infracost.io',
+  baseCloudPricingEndpoint:
+    process.env.BASE_CLOUD_PRICING_ENDPOINT ||
+    'https://pricing.api.infracost.io',
   infracostAPIKey: process.env.INFRACOST_API_KEY,
   cache,
   port: Number(process.env.PORT) || 4000,
