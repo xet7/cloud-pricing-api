@@ -115,7 +115,7 @@ const config = {
   logger,
   db,
   pg,
-  productTableName: 'Product',
+  productTableName: 'products',
   baseCloudPricingEndpoint:
     process.env.BASE_CLOUD_PRICING_ENDPOINT ||
     'https://pricing.api.infracost.io',
