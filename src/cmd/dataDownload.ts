@@ -21,6 +21,7 @@ async function run() {
       {
         headers: {
           'X-Api-Key': config.infracostAPIKey,
+          'X-Cloud-Pricing-Api-Version': process.env.npm_package_version,
         },
       }
     );
