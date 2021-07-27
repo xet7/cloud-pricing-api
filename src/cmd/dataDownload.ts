@@ -17,7 +17,7 @@ async function run() {
 
   try {
     latestResp = await axios.get(
-      `${config.baseCloudPricingEndpoint}/db-data/latest`,
+      `${config.infracostPricingApiEndpoint}/db-data/latest`,
       {
         headers: {
           'X-Api-Key': config.infracostAPIKey,

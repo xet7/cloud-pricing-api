@@ -116,8 +116,8 @@ const config = {
   db,
   pg,
   productTableName: 'products',
-  baseCloudPricingEndpoint:
-    process.env.BASE_CLOUD_PRICING_ENDPOINT ||
+  infracostPricingApiEndpoint:
+    process.env.INFRACOST_PRICING_API_ENDPOINT ||
     'https://pricing.api.infracost.io',
   infracostAPIKey: process.env.INFRACOST_API_KEY,
   cache,
