@@ -59,7 +59,13 @@ async function replaceProductTable(client: PoolClient) {
 async function loadFiles(path: string, client: PoolClient): Promise<void> {
   const filenames = glob.sync(`${path}/*.csv.gz`);
   if (filenames.length === 0) {
-    throw new Error(`No data files at '${path}/*.csv.gz'`);
+    config.logger.error(
+      `Could not load prices: There are no data files at '${path}/*.csv.gz'`
+    );
+    config.logger.error(
+      `The latest data files can be downloaded with "npm run-scripts data:download"`
+    );
+    process.exit(1);
   }
 
   for (const filename of filenames) {
@@ -72,7 +78,12 @@ async function loadFile(client: PoolClient, filename: string): Promise<void> {
   const promisifiedPipeline = promisify(pipeline);
 
   const gunzip = zlib.createGunzip().on('error', (e) => {
-    config.logger.info(e);
+    config.logger.error(
+      `There was an error decompressing the file: ${e.message}`
+    );
+    config.logger.error(
+      `The latest data files can be downloaded with "npm run-scripts data:download"`
+    );
     process.exit(1);
   });
 

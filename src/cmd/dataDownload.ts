@@ -15,6 +15,14 @@ async function run() {
 
   let latestResp: AxiosResponse<{ downloadUrl: string }>;
 
+  if (!config.infracostAPIKey) {
+    config.logger.error('Please set INFRACOST_API_KEY.');
+    config.logger.error(
+      'A new key can be obtained by installing the infracost CLI and running "infracost register".  The key is usually saved in ~/.config/infracost/credentials.yml'
+    );
+    process.exit(1);
+  }
+
   try {
     latestResp = await axios.get(
       `${config.infracostPricingApiEndpoint}/data-download/latest`,
@@ -28,7 +36,10 @@ async function run() {
   } catch (e) {
     if (e.response?.status === 403) {
       config.logger.error(
-        'You do not have permission to download data. Please set a INFRACOST_API_KEY.'
+        'You do not have permission to download data. Please set a valid INFRACOST_API_KEY.'
+      );
+      config.logger.error(
+        'A new key can be obtained by installing the infracost CLI and running "infracost register".  The key is usually saved in ~/.config/infracost/credentials.yml'
       );
     } else {
       config.logger.error(`There was an error downloading data: ${e.message}`);
@@ -47,7 +58,7 @@ async function run() {
   }).then((resp) => {
     return new Promise((resolve, reject) => {
       const progressBar = new ProgressBar(
-        '-> downloading [:bar] :percent (:etas remaining)',
+        `-> downloading ${argv.out} [:bar] :percent (:etas remaining)`,
         {
           width: 40,
           complete: '=',

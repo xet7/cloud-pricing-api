@@ -101,42 +101,46 @@ Response:
     cd cloud-pricing-api
     ```
 
-2. Add a `.env` file to configure your Infracost API key and postgres server, e.g.
+
+2. Use the [Infracost CLI](https://github.com/infracost/infracost/blob/master/README.md#quick-start) to set up your API key:
+
+    ```sh
+    infracost register
+    ```
+   The key is saved in `~/.config/infracost/credentials.yml`.
+
+
+3. Add a `.env` file to configure your postgres server and API keys, e.g.
 
     ```
     POSTGRES_URI=postgresql://postgres:my_password@localhost:5432/cloudPricing
 
+    # Infracost API is used to download pricing data.
+    INFRACOST_API_KEY=<API Key>
+   
     # If using GCP
     GCP_PROJECT=
     GCP_API_KEY=<GCP API Key> # An API key with access to the GCP Cloud Billing API
     GCP_KEY_FILE=gcp_creds.json # Credentials for a service account that has read-only access to Compute Engine.
     ```
 
-3. Install the npm packages:
+4. Install the npm packages:
 
     ```sh
     npm install
     ```
 
-4. Run npm build:
+5. Run npm build:
 
     ```sh
     npm run-script build
     ```
 
-
-5. Use the [Infracost CLI](https://github.com/infracost/infracost/blob/master/README.md#quick-start) to setup your API key:
-
-    ```sh
-    infracost register
-    ```
-    The key is saved in `~/.config/infracost/credentials.yml`.
-
 6. Download and install the pricing data:
    
     ```sh
     npm run-script job:init
-     ```
+    ```
 
 7. Confirm installation:
 
