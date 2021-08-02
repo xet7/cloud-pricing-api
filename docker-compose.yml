@@ -1,48 +1,91 @@
 version: '3'
 
 services:
-  app:
+  api:
     build: 
       context: .
       dockerfile: Dockerfile
-    image: infracost/cloud-pricing-api
+    image: cloud_pricing_api/cloud-pricing-api
     ports: 
         - 4000:4000
     environment:
-      - MONGODB_URI=mongodb://db:27017/cloudPricing
-    depends_on: [db]
+      - INFRACOST_API_KEY=${INFRACOST_API_KEY}
+      - SELF_HOSTED_INFRACOST_API_KEY=${SELF_HOSTED_INFRACOST_API_KEY}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD==${POSTGRES_PASSWORD:-postgres}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    depends_on: [postgres]
     volumes:
       - ./data:/usr/src/app/data
     networks:
-      - infracost
+      - cloud_pricing_api
 
-  updater:
-    profiles: ["updater"]
+  init_job:
     build:
       context: .
       dockerfile: Dockerfile
-    image: infracost/cloud-pricing-api
+    image: cloud_pricing_api/cloud-pricing-api
     environment:
-      - MONGODB_URI=mongodb://db:27017/cloudPricing
-    depends_on: [db]
+      - INFRACOST_API_KEY=${INFRACOST_API_KEY}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+    depends_on: [postgres]
     volumes:
       - ./data:/usr/src/app/data
     networks:
-      - infracost
-    command: ["npm", "run", "update"]
+      - cloud_pricing_api
+    command: ["npm", "run", "job:init"]
 
-  db:
-    image: mongo:4.4
-    restart: unless-stopped
+  # Cron: Add a cron job to run every week to update the database data. The cron entry should look something like:
+  # 0 4 * * SUN docker-compose run --rm update_job npm run job:update >> /var/log/cron.log 2>&1
+  update_job:
+    profiles: ["update_job"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cloud_pricing_api/cloud-pricing-api
+    environment:
+      - INFRACOST_API_KEY=${INFRACOST_API_KEY}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+    depends_on: [postgres]
     volumes:
-      - mongodb-data:/data/db
-    ports:
-     - 27017:27017
+      - ./data:/usr/src/app/data
     networks:
-      - infracost
+      - cloud_pricing_api
+    command: ["npm", "run", "job:update"]
+
+  postgres:
+    image: postgres:13
+    user: postgres
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - postgres-data:/var/lib/postgresql/data/
+    networks:
+      - cloud_pricing_api
  
 volumes:
-  mongodb-data:
+  postgres-data:
 
 networks:
-  infracost:
+  cloud_pricing_api:

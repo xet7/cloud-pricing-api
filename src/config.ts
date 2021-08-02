@@ -120,6 +120,7 @@ const config = {
     process.env.INFRACOST_PRICING_API_ENDPOINT ||
     'https://pricing.api.infracost.io',
   infracostAPIKey: process.env.INFRACOST_API_KEY,
+  selfHostedInfracostAPIKey: process.env.SELF_HOSTED_INFRACOST_API_KEY,
   cache,
   port: Number(process.env.PORT) || 4000,
   gcpApiKey: process.env.GCP_API_KEY,
