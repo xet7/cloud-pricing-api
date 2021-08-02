@@ -1,6 +1,5 @@
 import dotenv from 'dotenv';
 import pino from 'pino';
-import { MongoClient, Db } from 'mongodb';
 import NodeCache from 'node-cache';
 import { Pool, PoolConfig } from 'pg';
 import tmp from 'tmp';
@@ -21,59 +20,13 @@ createPaths.forEach((path) => {
   }
 });
 
-let client: MongoClient;
-
-async function setupDb(db: Db): Promise<void> {
-  db.collection('products').createIndex({ vendorName: 1, sku: 1 });
-  db.collection('products').createIndex({ productHash: 1 }, { unique: true });
-  db.collection('products').createIndex({
-    vendorName: 1,
-    service: 1,
-    productFamily: 1,
-    region: 1,
-  });
-  db.collection('products').createIndex({
-    vendorName: 1,
-    service: 1,
-    productFamily: 1,
-    region: 1,
-    'attributes.instanceType': 1,
-    'attributes.tenancy': 1,
-    'attributes.operatingSystem': 1,
-    'attributes.capacitystatus': 1,
-    'attributes.preInstalledSw': 1,
-  });
-  db.collection('products').createIndex({
-    vendorName: 1,
-    service: 1,
-    productFamily: 1,
-    region: 1,
-    'attributes.instanceType': 1,
-    'attributes.deploymentOption': 1,
-    'attributes.databaseEngine': 1,
-    'attributes.databaseEdition': 1,
-  });
-}
-
-async function db(): Promise<Db> {
-  if (!client) {
-    client = await MongoClient.connect(config.mongoDbUri, {
-      useUnifiedTopology: true,
-      useNewUrlParser: true,
-      poolSize: 10,
-    });
-    await setupDb(client.db());
-  }
-  return client.db();
-}
-
 let pgPool: Pool;
 async function pg(): Promise<Pool> {
   if (!pgPool) {
     let poolConfig: PoolConfig = {
       user: process.env.POSTGRES_USER || 'postgres',
-      database: process.env.POSTGRES_DB || 'cloudPricing',
-      password: process.env.POSTGRES_PASSWORD || 'my_password',
+      database: process.env.POSTGRES_DB || 'cloud_pricing',
+      password: process.env.POSTGRES_PASSWORD || '',
       port: Number(process.env.POSTGRES_PORT) || 5432,
       host: process.env.POSTGRES_HOST || 'localhost',
       max: Number(process.env.POSTGRES_MAX_CLIENTS) || 10,
@@ -83,7 +36,7 @@ async function pg(): Promise<Pool> {
       poolConfig = {
         connectionString:
           process.env.POSTGRES_URI ||
-          'postgresql://postgres:my_password@localhost:5432/cloudPricing',
+          'postgresql://postgres:@localhost:5432/cloud_pricing',
       };
     }
 
@@ -113,7 +66,6 @@ const cache = new NodeCache();
 
 const config = {
   logger,
-  db,
   pg,
   productTableName: 'products',
   infracostPricingApiEndpoint:
@@ -126,8 +78,6 @@ const config = {
   gcpApiKey: process.env.GCP_API_KEY,
   gcpKeyFile: generateGcpKeyFile(),
   gcpProject: process.env.GCP_PROJECT,
-  mongoDbUri:
-    process.env.MONGODB_URI || 'mongodb://localhost:27017/cloudPricing',
 };
 
 export default config;
