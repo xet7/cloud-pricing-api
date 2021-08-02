@@ -7,6 +7,7 @@ import ApolloLogger from './utils/apolloLogger';
 import resolvers from './resolvers';
 import typeDefs from './typeDefs';
 import health from './health';
+import auth from './auth';
 
 type ApplicationOptions = {
   apolloConfigOverrides?: ApolloServerExpressConfig;
@@ -46,6 +47,8 @@ function createApp(opts: ApplicationOptions = {}): Application {
   );
 
   app.use(health);
+
+  app.use(auth);
 
   const apolloConfig: ApolloServerExpressConfig = {
     schema: makeExecutableSchema({

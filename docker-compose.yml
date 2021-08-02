@@ -10,6 +10,7 @@ services:
         - 4000:4000
     environment:
       - INFRACOST_API_KEY=${INFRACOST_API_KEY}
+      - SELF_HOSTED_INFRACOST_API_KEY=${SELF_HOSTED_INFRACOST_API_KEY}
       - POSTGRES_HOST=postgres
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
