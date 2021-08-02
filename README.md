@@ -1,98 +1,52 @@
 # Cloud Pricing API
 
-This project aims to create a GraphQL cloud pricing API. Currently supports AWS & Google, future support for other cloud vendors is planned.
+<a href="https://www.infracost.io/community-chat"><img alt="Community Slack channel" src="https://img.shields.io/badge/chat-Slack-%234a154b"/></a>
 
-Infracost has a hosted version of this service. To get an API key [download infracost](https://www.infracost.io/docs/#quick-start) and run `infracost register`.
+The Cloud Pricing API is a GraphQL-based API that includes all public prices from AWS, Azure and Google. The prices are updated via a weekly job. This API is used by the [Infracost CLI](https://github.com/infracost/infracost) but you can also use it independently.
 
-## Table of Contents
+## Example usage
 
-* [Example requests](#example-requests)
-* [Getting Started](#getting-started)
-  * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
-* [Usage](#usage)
-  * [Running](#running)
-* [License](#license)
+Infracost runs a hosted version of this API that you can use if you prefer that:
+1. Register for an API key by [downloading infracost](https://www.infracost.io/docs/#quick-start) and run `infracost register`.
+2. If you'd like to use the API independently, pass the above API key using the `X-API-KEY: xxxx` HTTP header when calling [https://pricing.api.infracost.io/graphql](https://pricing.api.infracost.io/graphql). The following example `curl` fetches the latest price for an AWS EC2 m3.large instance in us-east-1. More examples can be found in `./examples/queries`.
 
-## Example requests
+    **Example request**:
+    ```sh
+    curl https://pricing.api.infracost.io/graphql \
+      -X POST \
+      -H 'X-API-KEY: YOUR_API_KEY_HERE' \
+      -H 'content-type: application/json' \
+      --data '
+      {"query": "{ products(filter: {vendorName: \"aws\", service: \"AmazonEC2\", region: \"us-east-1\", attributeFilters: [{key: \"instanceType\", value: \"m3.large\"}, {key: \"operatingSystem\", value: \"Linux\"}, {key: \"tenancy\", value: \"Shared\"}, {key: \"capacitystatus\", value: \"Used\"}, {key: \"preInstalledSw\", value: \"NA\"}]}) { prices(filter: {purchaseOption: \"on_demand\"}) { USD } } } "}
+      '
+    ```
 
-Get all t3.micro prices in US East, this returns 30+ results. Try it yourself by pasting the following query into [https://pricing.api.infracost.io/graphql](https://pricing.api.infracost.io/graphql) - you'll need to use something like the [modheader](https://bewisse.com/modheader/) browser extension so you can set the custom HTTP header `x-api-key` to your Infracost API key.
+    **Example response**:
+    ```sh
+    {"data":{"products":[{"prices":[{"USD":"0.1330000000"}]}]}}
+    ```
+    
+    The [GraphQL Playground](https://pricing.api.infracost.io/graphql) can also be used with something like the [modheader](https://bewisse.com/modheader/) browser extension so you can set the custom HTTP header `X-API-KEY` to your Infracost API key.
 
-```graphql
-query {
-  products(
-    filter: {
-      vendorName: "aws",
-      service: "AmazonEC2",
-      productFamily: "Compute Instance",
-      region: "us-east-1",
-      attributeFilters: [
-        { key: "instanceType", value: "t3.micro" }
-      ]
-    },
-  ) {
-    attributes { key, value }
-    prices { USD }
-  }
-}
-```
+## Deployment
 
-Get the hourly on-demand price of a Linux EC2 t3.micro instance in US East:
+![Deployment overview](.github/assets/deployment_overview.png "Deployment overview")
 
-Request:
+It should take around 15mins to deploy the Cloud Pricing API. Two deployment methods are supported:
+1. If you have a Kubernetes cluster, we recommend using [our Helm Chat](https://github.com/infracost/helm-charts).
+2. If you prefer to deploy in a VM, we recommend using Docker compose.
 
-```graphql
-query {
-  products(
-    filter: {
-      vendorName: "aws",
-      service: "AmazonEC2",
-      productFamily: "Compute Instance",
-      region: "us-east-1",
-      attributeFilters: [
-        { key: "instanceType", value: "t3.micro" },
-        { key: "tenancy", value: "Shared" },
-        { key: "operatingSystem", value: "Linux" },
-        { key: "capacitystatus", value: "Used" },
-        { key: "preInstalledSw", value: "NA" }
-      ]
-    },
-  ) {
-    prices(
-      filter: {
-        purchaseOption: "on_demand"
-      },
-    ) { USD }
-  }
-}
-```
+Either way, you can run the PostgreSQL DB on a single container/pod if your high-availability requirements allow for a few second downtime on container/pod restarts. No critical data is stored in the DB and the DB can be quickly recreated in the unlikely event of data corruption issues.
 
-Response:
+You might wonder why the pricing DB dump is downloaded from Infracost's API instead of cloud APIs directly: this is multi-cloud Pricing API so instead of having multiple jobs to fetch pricing data from cloud APIs, we have created one job that you can run once a week to download the latest pricing DB dump. This provides you with:
+1. **Fast updates**: our aim is to enable you to deploy this service in less than 15mins. Azure's pricing API paginates to 100 resources at a time, and making too many requests result in errors; fetching prices directly takes more than an hour.
+2. **Complete updates**: We run [integration tests](https://github.com/infracost/infracost/actions) to ensure that the CLI is using the correct prices. In the past, there have been cases when cloud providers have tweaked their pricing API data that caused direct downloads to fail. With this method, we check the pricing data passes our integration tests before publishing them, and everyone automatically gets the entire up-to-date data. The aim is reduce the risk of failed or partial updates.
 
-```json
-{
-  "products": [
-    {
-      "pricing": [
-        {
-          "USD": "0.0104000000"
-        }
-      ]
-    }
-  ]
-}
-```
+### Helm chart
 
-> More examples can be found in `./examples/queries`
+See [our Helm Chat](https://github.com/infracost/helm-charts) for details.
 
-## Getting started
-
-### Prerequisites
-
- * Node.js >= 14.15.0
- * Postgres >= 12
-
-### Installation
+### Docker compose
 
 1. Clone the repo:
 
@@ -101,90 +55,48 @@ Response:
     cd cloud-pricing-api
     ```
 
-
-2. Use the [Infracost CLI](https://github.com/infracost/infracost/blob/master/README.md#quick-start) to set up your API key:
+2. Use the [Infracost CLI](https://github.com/infracost/infracost/blob/master/README.md#quick-start) to get an API key so your self-hosted Cloud Pricing API can download the latest pricing data from us:
 
     ```sh
     infracost register
     ```
-   The key is saved in `~/.config/infracost/credentials.yml`.
+    The key is saved in `~/.config/infracost/credentials.yml`.
 
-
-3. Add a `.env` file to configure your postgres server and API keys, e.g.
-
-    ```
-    POSTGRES_URI=postgresql://postgres:my_password@localhost:5432/cloudPricing
-
-    # Infracost API is used to download pricing data.
-    INFRACOST_API_KEY=<API Key>
-   
-    # If using GCP
-    GCP_PROJECT=
-    GCP_API_KEY=<GCP API Key> # An API key with access to the GCP Cloud Billing API
-    GCP_KEY_FILE=gcp_creds.json # Credentials for a service account that has read-only access to Compute Engine.
-    ```
-
-4. Install the npm packages:
+3. Generate a 32 character API token that your Infracost CLI users will use to authenticate when calling your self-hosted Cloud Pricing API. If you ever need to rotate the API key, you can simply update this environment variable and restart the application.
 
     ```sh
-    npm install
+    export SELF_HOSTED_INFRACOST_API_KEY=$(cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+    echo "SELF_HOSTED_INFRACOST_API_KEY=$SELF_HOSTED_INFRACOST_API_KEY"
     ```
 
-5. Run npm build:
+4. Add a `.env` file with the following content:
 
     ```sh
-    npm run-script build
+    # The Infracost API from Step 2, used to download pricing data from us.
+    INFRACOST_API_KEY=<API Key from Step 2>
+
+    # The API key you generated in step 3, used to authenticate Infracost CLI users with your self-hosted Cloud Pricing API.
+    SELF_HOSTED_INFRACOST_API_KEY=<API Key from Step 3>
     ```
 
-6. Download and install the pricing data:
-   
-    ```sh
-    npm run-script job:init
-    ```
+5. Run `docker-compose up`. This will create three containers: PostgreSQL DB, Cloud Pricing API, and an init container that loads the pricing data. The init container will take a few minutes and exit after the Docker compose logs show `init_job_1: Completed: downloading DB data`.
 
-7. Confirm installation:
-
-    ```shell
-    npm run data:status:dev
-   
-    >[
-      {
-        "vendorName": "aws",
-        "productCount": "609667"
-      },
-      {
-        "vendorName": "azure",
-        "productCount": "237286"
-      },
-      {
-        "vendorName": "gcp",
-        "productCount": "31723"
-      }
-    ]
-    ```
-
-8. Keep prices up to date by running the update job once a week:
+6. Configure the Infracost CLI to use your self-hosted Cloud Pricing API:
 
     ```sh
-    npm run-script job:update
-     ```
-   
-## Usage
+    export INFRACOST_PRICING_API_ENDPOINT=http://localhost:4000
+    export INFRACOST_API_KEY=$SELF_HOSTED_INFRACOST_API_KEY
+    
+    infracost breakdown --path /path/to/code
+    ```
 
-### Running locally
+    You can also access the GraphQL Playground at [http://localhost:4000/graphql](http://localhost:4000/graphql) using something like the [modheader](https://bewisse.com/modheader/) browser extension so you can set the custom HTTP header `X-API-KEY` to your `SELF_HOSTED_INFRACOST_API_KEY`.
 
-```
-npm run dev
-```
+## Contributing
 
-### Running in production
+Issues and pull requests are welcome! For development details, see the [contributing](CONTRIBUTING.md) guide. For major changes, including interface changes, please open an issue first to discuss what you would like to change. [Join our community Slack channel](https://www.infracost.io/community-chat), we are a friendly bunch and happy to help you get started :)
 
-```
-npm run-script build
-npm run start
-```
-
-You can now access the GraphQL Playground at [http://localhost:4000/graphql](http://localhost:4000/graphql).
+We're also looking for [Sr Full Stack Engineer](https://www.infracost.io/join-the-team) to join our team.
 
 ## License
 
