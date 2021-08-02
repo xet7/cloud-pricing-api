@@ -11,7 +11,7 @@ RUN npm run build
 FROM node:14.15.0-alpine3.12 as release
 
 RUN apk update && apk upgrade && \
-  apk add --no-cache bash postgresql-client
+  apk add --no-cache bash curl postgresql-client
 
 WORKDIR /usr/src/app
 RUN mkdir data
