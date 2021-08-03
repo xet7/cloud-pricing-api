@@ -5,7 +5,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    image: cloud_pricing_api/cloud-pricing-api:latest
+    image: infracost/cloud-pricing-api:latest # Latest stable release
     ports: 
         - 4000:4000
     environment:
@@ -31,7 +31,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: cloud_pricing_api/cloud-pricing-api:latest
+    image: infracost/cloud-pricing-api:latest # Latest stable release
     environment:
       - INFRACOST_API_KEY=${INFRACOST_API_KEY}
       - POSTGRES_HOST=postgres
@@ -52,7 +52,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: cloud_pricing_api/cloud-pricing-api:latest
+    image: infracost/cloud-pricing-api:latest # Latest stable release
     environment:
       - INFRACOST_API_KEY=${INFRACOST_API_KEY}
       - POSTGRES_HOST=postgres

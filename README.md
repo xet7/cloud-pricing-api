@@ -1,6 +1,7 @@
 # Cloud Pricing API
 
-<a href="https://www.infracost.io/community-chat"><img alt="Community Slack channel" src="https://img.shields.io/badge/chat-Slack-%234a154b"/></a>
+<a href="https://www.infracost.io/community-chat"><img alt="Community Slack channel" src="https://img.shields.io/badge/chat-Slack-%234a154b"/></a> <a href="https://hub.docker.com/r/infracost/infracost/tags"><img alt="Docker Image" src="https://img.shields.io/docker/cloud/build/infracost/infracost"/></a>
+<a href="https://twitter.com/intent/tweet?text=Open%20source%20GraphQL%20API%20for%20cloud%20pricing.%20Contains%20over%203M%20public%20prices%20from%20AWS%2C%20Azure%20and%20GCP!&url=https://github.com/infracost/cloud-pricing-api&hashtags=cloud,price,aws,azure,gcp"><img alt="Tweet" src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social"/></a>
 
 The Cloud Pricing API is a GraphQL-based API that includes all public prices from AWS, Azure and Google. The prices are updated via a weekly job. This API is used by the [Infracost CLI](https://github.com/infracost/infracost) but you can also use it independently.
 
@@ -33,7 +34,7 @@ Infracost runs a hosted version of this API that you can use if you prefer that:
 ![Deployment overview](.github/assets/deployment_overview.png "Deployment overview")
 
 It should take around 15 mins to deploy the Cloud Pricing API. Two deployment methods are supported:
-1. If you have a Kubernetes cluster, we recommend using [our Helm Chat](https://github.com/infracost/helm-charts).
+1. If you have a Kubernetes cluster, we recommend using [our Helm Chart](https://github.com/infracost/helm-charts/tree/master/charts/cloud-pricing-api).
 2. If you prefer to deploy in a VM, we recommend using Docker compose.
 
 Either way, you can run the PostgreSQL DB on a single container/pod if your high-availability requirements allow for a few second downtime on container/pod restarts. No critical data is stored in the DB and the DB can be quickly recreated in the unlikely event of data corruption issues.
@@ -44,7 +45,7 @@ You might wonder why the pricing DB dump is downloaded from Infracost's API inst
 
 ### Helm chart
 
-See [our Helm Chat](https://github.com/infracost/helm-charts) for details.
+See [our Helm Chart](https://github.com/infracost/helm-charts/tree/master/charts/cloud-pricing-api) for details.
 
 ### Docker compose
 
