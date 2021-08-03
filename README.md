@@ -8,14 +8,14 @@ The Cloud Pricing API is a GraphQL-based API that includes all public prices fro
 
 Infracost runs a hosted version of this API that you can use if you prefer that:
 1. Register for an API key by [downloading infracost](https://www.infracost.io/docs/#quick-start) and run `infracost register`.
-2. If you'd like to use the API independently, pass the above API key using the `X-API-KEY: xxxx` HTTP header when calling [https://pricing.api.infracost.io/graphql](https://pricing.api.infracost.io/graphql). The following example `curl` fetches the latest price for an AWS EC2 m3.large instance in us-east-1. More examples can be found in `./examples/queries`.
+2. If you'd like to use the API independently, pass the above API key using the `X-Api-Key: xxxx` HTTP header when calling [https://pricing.api.infracost.io/graphql](https://pricing.api.infracost.io/graphql). The following example `curl` fetches the latest price for an AWS EC2 m3.large instance in us-east-1. More examples can be found in `./examples/queries`.
 
     **Example request**:
     ```sh
     curl https://pricing.api.infracost.io/graphql \
       -X POST \
-      -H 'X-API-KEY: YOUR_API_KEY_HERE' \
-      -H 'content-type: application/json' \
+      -H 'X-Api-Key: YOUR_API_KEY_HERE' \
+      -H 'Content-Type: application/json' \
       --data '
       {"query": "{ products(filter: {vendorName: \"aws\", service: \"AmazonEC2\", region: \"us-east-1\", attributeFilters: [{key: \"instanceType\", value: \"m3.large\"}, {key: \"operatingSystem\", value: \"Linux\"}, {key: \"tenancy\", value: \"Shared\"}, {key: \"capacitystatus\", value: \"Used\"}, {key: \"preInstalledSw\", value: \"NA\"}]}) { prices(filter: {purchaseOption: \"on_demand\"}) { USD } } } "}
       '
@@ -26,13 +26,13 @@ Infracost runs a hosted version of this API that you can use if you prefer that:
     {"data":{"products":[{"prices":[{"USD":"0.1330000000"}]}]}}
     ```
     
-    The [GraphQL Playground](https://pricing.api.infracost.io/graphql) can also be used with something like the [modheader](https://bewisse.com/modheader/) browser extension so you can set the custom HTTP header `X-API-KEY` to your Infracost API key.
+    The [GraphQL Playground](https://pricing.api.infracost.io/graphql) can also be used with something like the [modheader](https://bewisse.com/modheader/) browser extension so you can set the custom HTTP header `X-Api-Key` to your Infracost API key.
 
 ## Deployment
 
 ![Deployment overview](.github/assets/deployment_overview.png "Deployment overview")
 
-It should take around 15mins to deploy the Cloud Pricing API. Two deployment methods are supported:
+It should take around 15 mins to deploy the Cloud Pricing API. Two deployment methods are supported:
 1. If you have a Kubernetes cluster, we recommend using [our Helm Chat](https://github.com/infracost/helm-charts).
 2. If you prefer to deploy in a VM, we recommend using Docker compose.
 
@@ -90,7 +90,7 @@ See [our Helm Chat](https://github.com/infracost/helm-charts) for details.
     infracost breakdown --path /path/to/code
     ```
 
-    You can also access the GraphQL Playground at [http://localhost:4000/graphql](http://localhost:4000/graphql) using something like the [modheader](https://bewisse.com/modheader/) browser extension so you can set the custom HTTP header `X-API-KEY` to your `SELF_HOSTED_INFRACOST_API_KEY`.
+    You can also access the GraphQL Playground at [http://localhost:4000/graphql](http://localhost:4000/graphql) using something like the [modheader](https://bewisse.com/modheader/) browser extension so you can set the custom HTTP header `X-Api-Key` to your `SELF_HOSTED_INFRACOST_API_KEY`.
 
 ## Contributing
 
