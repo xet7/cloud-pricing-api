@@ -1,8 +1,7 @@
 on:
   push:
-    branches: [ master ]
-  #  tags:
-  #    - "v*"
+    tags:
+      - "v*"
 name: Release docker image
 
 jobs:
