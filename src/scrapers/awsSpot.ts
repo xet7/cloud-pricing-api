@@ -4,6 +4,7 @@ import config from '../config';
 import { Product } from '../db/types';
 import { generatePriceHash } from '../db/helpers';
 import { upsertPrice } from '../db/upsert';
+import { findProducts } from '../db/query';
 
 const ec2Url = 'https://website.spot.ec2.aws.a2z.com/spot.js';
 
@@ -41,7 +42,7 @@ type SpotJson = {
   };
 };
 
-async function update(): Promise<void> {
+async function scrape(): Promise<void> {
   const jsonData = await downloadEc2();
   await loadEc2(jsonData);
 }
@@ -76,7 +77,7 @@ async function loadEc2(jsonData: SpotJson) {
           continue;
         }
 
-        const products = await findProducts(
+        const products = await findComputeProducts(
           region,
           instanceType,
           operatingSystem
@@ -136,30 +137,27 @@ async function updateProduct(
   await upsertPrice(product, price);
 }
 
-async function findProducts(
+async function findComputeProducts(
   region: string,
   instanceType: string,
   operatingSystem: string
 ): Promise<Product[]> {
-  const db = await config.db();
-
-  return db
-    .collection('products')
-    .find<Product>({
+  return findProducts(
+    {
       vendorName: 'aws',
       service: 'AmazonEC2',
-      productFamily: {
-        $in: ['Compute Instance', 'Compute Instance (bare metal)'],
-      },
+      productFamily: ['Compute Instance', 'Compute Instance (bare metal)'],
       region,
-      'attributes.instanceType': instanceType,
-      'attributes.operatingSystem': operatingSystem,
-      'attributes.capacitystatus': 'Used',
-      'attributes.preInstalledSw': 'NA',
-    })
-    .toArray();
+    },
+    [
+      { key: 'instanceType', value: instanceType },
+      { key: 'operatingSystem', value: operatingSystem },
+      { key: 'capacitystatus', value: 'Used' },
+      { key: 'preInstalledSw', value: 'NA' },
+    ]
+  );
 }
 
 export default {
-  update,
+  scrape,
 };

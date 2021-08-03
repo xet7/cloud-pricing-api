@@ -1,83 +1,93 @@
-import _ from 'lodash';
-import { BulkWriteUpdateOneOperation, BulkWriteOpResultObject } from 'mongodb';
-import config from '../config';
+import format from 'pg-format';
 import { Product, Price } from './types';
+import config from '../config';
 
 const batchSize = 1000;
 
 async function upsertProducts(products: Product[]): Promise<void> {
-  const db = await config.db();
+  const pool = await config.pg();
 
-  const promises: Promise<BulkWriteOpResultObject>[] = [];
+  const insertSql = format(
+    `INSERT INTO %I ("productHash", "sku", "vendorName", "region", "service", "productFamily", "attributes", "prices") VALUES `,
+    config.productTableName
+  );
 
-  let batchUpdates: BulkWriteUpdateOneOperation<Product>[] = [];
+  const onConflictSql = format(
+    ` 
+    ON CONFLICT ("productHash") DO UPDATE SET
+    "sku" = excluded."sku",
+    "vendorName" = excluded."vendorName",
+    "region" = excluded."region",
+    "service" = excluded."service",
+    "productFamily" = excluded."productFamily",
+    "attributes" = excluded."attributes",
+    "prices" = %I."prices" || excluded."prices"        
+    `,
+    config.productTableName
+  );
 
-  products.forEach((product) => {
-    batchUpdates.push({
-      updateOne: {
-        filter: {
-          productHash: product.productHash,
-        },
-        update: {
-          $set: _.omit(product, 'prices'),
-          $pull: {
-            prices: {
-              priceHash: { $in: product.prices.map((p) => p.priceHash) },
-            },
-          },
-        },
-        upsert: true,
-      },
-    });
+  // Collect products for bulk update in a map so we can avoid updating the same product in a single batch since
+  // postgres doesn't allow that.
+  const productHashToInsertRow: Map<string, string> = new Map();
 
-    batchUpdates.push({
-      updateOne: {
-        filter: {
-          productHash: product.productHash,
-        },
-        update: {
-          $set: _.omit(product, 'prices'),
-          $push: { prices: { $each: product.prices } },
-        },
-        upsert: true,
-      },
-    });
-
-    if (batchUpdates.length >= batchSize) {
-      promises.push(db.collection('products').bulkWrite(batchUpdates));
-      batchUpdates = [];
+  for (const product of products) {
+    if (
+      productHashToInsertRow.size > batchSize ||
+      productHashToInsertRow.has(product.productHash)
+    ) {
+      await pool.query(
+        insertSql +
+          Array.from(productHashToInsertRow.values()).join(',') +
+          onConflictSql
+      );
+      productHashToInsertRow.clear();
     }
-  });
 
-  if (batchUpdates.length > 0) {
-    promises.push(db.collection('products').bulkWrite(batchUpdates));
+    // Prices are stored as { pricesHash: prices[] } so we can update/merge them using the postgres jsonb concatenation
+    const pricesMap: { [priceHash: string]: Price[] } = {};
+    product.prices.forEach((price) => {
+      if (pricesMap[price.priceHash]) {
+        pricesMap[price.priceHash].push(price);
+      } else {
+        pricesMap[price.priceHash] = [price];
+      }
+    });
+
+    productHashToInsertRow.set(
+      product.productHash,
+      format(
+        `(%L, %L, %L, %L, %L, %L, %L, %L)`,
+        product.productHash,
+        product.sku,
+        product.vendorName,
+        product.region,
+        product.service,
+        product.productFamily || '',
+        product.attributes,
+        pricesMap
+      )
+    );
   }
-  await Promise.all(promises);
+
+  if (productHashToInsertRow.size > 0) {
+    await pool.query(
+      insertSql +
+        Array.from(productHashToInsertRow.values()).join(',') +
+        onConflictSql
+    );
+  }
 }
 
 async function upsertPrice(product: Product, price: Price): Promise<void> {
-  const db = await config.db();
+  const pool = await config.pg();
 
-  await db.collection('products').updateOne(
-    {
-      productHash: product.productHash,
-    },
-    {
-      $pull: {
-        prices: {
-          priceHash: price.priceHash,
-        },
-      },
-    }
-  );
-
-  await db.collection('products').updateOne(
-    {
-      productHash: product.productHash,
-    },
-    {
-      $push: { prices: price },
-    }
+  await pool.query(
+    format(
+      `UPDATE %I SET "prices" = "prices" || %L WHERE "productHash" = %L`,
+      config.productTableName,
+      { [price.priceHash]: [price] },
+      product.productHash
+    )
   );
 }
 

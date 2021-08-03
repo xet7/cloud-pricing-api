@@ -1,9 +1,8 @@
-import _ from 'lodash';
 import { IResolvers } from 'graphql-tools';
 import mingo from 'mingo';
-import config from './config';
-import { Product, Price } from './db/types';
+import { Price, Product } from './db/types';
 import currency from './utils/currency';
+import { findProducts } from './db/query';
 
 const productLimit = 1000;
 
@@ -14,7 +13,8 @@ type Filter = { [key: string]: string };
 type AttributeFilter = {
   key: string;
   value?: string;
-  valueRegex?: string;
+  // eslint-disable-next-line camelcase
+  value_regex?: string;
 };
 
 interface ProductsArgs {
@@ -44,25 +44,8 @@ const resolvers: IResolvers = {
       _parent: unknown,
       args: ProductsArgs
     ): Promise<Product[]> => {
-      const db = await config.db();
-
-      const productFilter = transformFilter(
-        <Filter>_.omit(args.filter, 'attributeFilters')
-      );
-      const attributeFilters = transformAttributeFilters(
-        <AttributeFilter[]>args.filter.attributeFilters
-      );
-
-      const products = await db
-        .collection('products')
-        .find({
-          ...productFilter,
-          ...attributeFilters,
-        })
-        .limit(productLimit)
-        .toArray();
-
-      return products;
+      const { attributeFilters, ...otherFilters } = args.filter;
+      return findProducts(otherFilters, attributeFilters, productLimit);
     },
   },
   Product: {
@@ -108,22 +91,10 @@ function transformFilter(filter: Filter): MongoDbFilter {
   return transformed;
 }
 
-function transformAttributeFilters(filters: AttributeFilter[]): MongoDbFilter {
-  const transformed: MongoDbFilter = {};
-  if (!filters) {
-    return transformed;
-  }
-  filters.forEach((filter) => {
-    transformed[`attributes.${filter.key}`] = transformFilter(
-      <Filter>_.omit(filter, 'key')
-    ).value;
-  });
-  return transformed;
-}
-
 async function convertCurrencies(prices: Price[]) {
   for (const price of prices) {
-    if (price.USD === null && price.CNY !== null) {
+    // use == instead of === so we're checking for null || undefined.
+    if (price.USD == null && price.CNY != null) {
       const usd = await currency.convert('CNY', 'USD', Number(price.CNY));
       price.USD = usd.toString();
     }

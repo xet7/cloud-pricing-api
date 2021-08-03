@@ -82,7 +82,7 @@ type ServiceJson = {
   };
 };
 
-async function update(): Promise<void> {
+async function scrape(): Promise<void> {
   await downloadAll();
   await loadAll();
 }
@@ -250,5 +250,5 @@ function parsePrices(
 }
 
 export default {
-  update,
+  scrape,
 };
