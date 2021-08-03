@@ -2,9 +2,8 @@
 
 **Prerequisites**:
 
- * Node.js version >= 14.15.0, with 500MB of RAM and 1 core.
- * Postgres version >= 13, with 10GB of volume storage.
-
+  * Node.js version >= 14.15.0
+  * Postgres version >= 13
 
 1. Clone the repo:
 
@@ -94,7 +93,7 @@
 1. In the cloud-pricing-api repo, run `git tag vx.y.z && git push origin vx.y.z`
 2. Wait for the GH Actions to complete.
 3. Click on the Edit draft button, set the `vx.y.z` value in the tag name and release title. Also add the release notes from the commits between this and the last release and click on publish.
-4. Update the [helm chart](https://github.com/infracost/helm-charts/tree/master/charts/cloud-pricing-api) to point to `vx.y.z`
+4. Follow the Helm chart [release steps](https://github.com/infracost/helm-charts/blob/master/CONTRIBUTING.md).
 5. Announce the release in the infracost-community Slack announcements channel.
 6. Update the docs repo with any required changes.
 7. Close addressed issues and tag anyone who liked/commented in them to tell them it's live in version X.

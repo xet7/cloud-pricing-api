@@ -37,10 +37,10 @@ It should take around 15 mins to deploy the Cloud Pricing API. Two deployment me
 1. If you have a Kubernetes cluster, we recommend using [our Helm Chart](https://github.com/infracost/helm-charts/tree/master/charts/cloud-pricing-api).
 2. If you prefer to deploy in a VM, we recommend using Docker compose.
 
-Either way, you can run the PostgreSQL DB on a single container/pod if your high-availability requirements allow for a few second downtime on container/pod restarts. No critical data is stored in the DB and the DB can be quickly recreated in the unlikely event of data corruption issues.
+Either way, you can run the PostgreSQL DB on a single container/pod if your high-availability requirements allow for a few second downtime on container/pod restarts. No critical data is stored in the DB and the DB can be quickly recreated in the unlikely event of data corruption issues. Managed databases, such as a small AWS RDS or Azure Database for PostgreSQL, can also be used (pg version >= 13).
 
-You might wonder why the pricing DB dump is downloaded from Infracost's API instead of cloud APIs directly: this is multi-cloud Pricing API so instead of having multiple jobs to fetch pricing data from cloud APIs, we have created one job that you can run once a week to download the latest pricing DB dump. This provides you with:
-1. **Fast updates**: our aim is to enable you to deploy this service in less than 15mins. Azure's pricing API paginates to 100 resources at a time, and making too many requests result in errors; fetching prices directly takes more than an hour.
+The pricing DB dump is downloaded from Infracost's API as that simplifies the task of keeping prices up-to-date. We have created one job that you can run once a week to download the latest prices. This provides you with:
+1. **Fast updates**: our aim is to enable you to deploy this service in less than 15mins. Some cloud vendors paginates API calls to 100 resources at a time, and making too many requests result in errors; fetching prices directly from them takes more than an hour.
 2. **Complete updates**: We run [integration tests](https://github.com/infracost/infracost/actions) to ensure that the CLI is using the correct prices. In the past, there have been cases when cloud providers have tweaked their pricing API data that caused direct downloads to fail. With this method, we check the pricing data passes our integration tests before publishing them, and everyone automatically gets the entire up-to-date data. The aim is reduce the risk of failed or partial updates.
 
 ### Helm chart
