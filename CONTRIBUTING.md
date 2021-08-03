@@ -86,3 +86,15 @@
     ```
 
     You can also access the GraphQL Playground at [http://localhost:4000/graphql](http://localhost:4000/graphql) using something like the [modheader](https://bewisse.com/modheader/) browser extension so you can set the custom HTTP header `X-API-KEY` to your `SELF_HOSTED_INFRACOST_API_KEY`.
+
+# Release
+
+[@alikhajeh1](https://github.com/alikhajeh1) and [@aliscott](https://github.com/aliscott) rotate release responsibilities between them.
+
+1. In the cloud-pricing-api repo, run `git tag vx.y.z && git push origin vx.y.z`
+2. Wait for the GH Actions to complete.
+3. Click on the Edit draft button, set the `vx.y.z` value in the tag name and release title. Also add the release notes from the commits between this and the last release and click on publish.
+4. Update the [helm chart](https://github.com/infracost/helm-charts/tree/master/charts/cloud-pricing-api) to point to `vx.y.z`
+5. Announce the release in the infracost-community Slack announcements channel.
+6. Update the docs repo with any required changes.
+7. Close addressed issues and tag anyone who liked/commented in them to tell them it's live in version X.
