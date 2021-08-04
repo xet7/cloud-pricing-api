@@ -51,7 +51,7 @@
     npm run job:init && npm run data:status:dev
     ```
 
-7. Keep prices up to date by running the update job once a week, for example from cron:
+7. Prices can be kept up-to-date by running the update job once a week, for example from cron:
 
     ```sh
     npm run job:update

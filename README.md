@@ -82,7 +82,14 @@ See [our Helm Chart](https://github.com/infracost/helm-charts/tree/master/charts
 
 5. Run `docker-compose up`. This will create three containers: PostgreSQL DB, Cloud Pricing API, and an init container that loads the pricing data. The init container will take a few minutes and exit after the Docker compose logs show `init_job_1: Completed: downloading DB data`.
 
-6. Configure the Infracost CLI to use your self-hosted Cloud Pricing API:
+6. Prices can be kept up-to-date by running the update job once a week, for example from cron:
+
+    ```sh
+    # Add a weekly cron job to update the pricing data. The cron entry should look something like:
+    0 4 * * SUN docker-compose run --rm update_job npm run job:update >> /var/log/cron.log 2>&1
+    ```
+
+7. Configure the Infracost CLI to use your self-hosted Cloud Pricing API:
 
     ```sh
     export INFRACOST_PRICING_API_ENDPOINT=http://localhost:4000
