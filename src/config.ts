@@ -68,9 +68,15 @@ const config = {
   logger,
   pg,
   productTableName: 'products',
+  statsTableName: 'stats',
+  installsTableName: 'installs',
   infracostPricingApiEndpoint:
     process.env.INFRACOST_PRICING_API_ENDPOINT ||
     'https://pricing.api.infracost.io',
+  infracostDashboardApiEndpoint:
+    process.env.INFRACOST_DASHBOARD_API_ENDPOINT ||
+    'https://dashboard.api.infracost.io',
+  disableTelemetry: process.env.DISABLE_TELEMETRY || false,
   infracostAPIKey: process.env.INFRACOST_API_KEY,
   selfHostedInfracostAPIKey: process.env.SELF_HOSTED_INFRACOST_API_KEY,
   cache,

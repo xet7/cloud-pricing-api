@@ -44,6 +44,61 @@ export async function createProductsTableIndex(
   );
 }
 
+export async function createStatsTable(
+  client: PoolClient,
+  tableName: string,
+  ifNotExists?: boolean
+): Promise<void> {
+  await client.query(
+    format(
+      `
+      CREATE TABLE ${ifNotExists ? 'IF NOT EXISTS' : ''} %I
+      (
+        id serial PRIMARY KEY NOT NULL,
+        created_at timestamp DEFAULT NOW() NOT NULL,
+        updated_at timestamp NOT NULL,
+        prices_last_updated_at timestamp,
+        last_update_successful boolean,
+        total_runs bigint DEFAULT 0,
+        ci_runs bigint DEFAULT 0,
+        non_ci_runs bigint DEFAULT 0,
+        non_ci_installs int DEFAULT 0
+      )   
+    `,
+      tableName
+    )
+  );
+
+  await client.query(
+    format(
+      `
+      INSERT INTO %I (id, updated_at) VALUES (1, NOW())
+      ON CONFLICT DO NOTHING
+    `,
+      tableName
+    )
+  );
+}
+
+export async function createInstallsTable(
+  client: PoolClient,
+  tableName: string,
+  ifNotExists?: boolean
+): Promise<void> {
+  await client.query(
+    format(
+      `
+      CREATE TABLE ${ifNotExists ? 'IF NOT EXISTS' : ''} %I
+      (
+        install_id uuid PRIMARY KEY NOT NULL,
+        created_at timestamp DEFAUlT NOW() NOT NULL
+      )   
+    `,
+      tableName
+    )
+  );
+}
+
 export async function renameProductsTable(
   client: PoolClient,
   oldTableName: string,

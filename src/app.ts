@@ -9,6 +9,7 @@ import resolvers from './resolvers';
 import typeDefs from './typeDefs';
 import health from './health';
 import auth from './auth';
+import events from './events';
 
 type ApplicationOptions = {
   apolloConfigOverrides?: ApolloServerExpressConfig;
@@ -50,6 +51,8 @@ async function createApp(opts: ApplicationOptions = {}): Promise<Application> {
   app.use(health);
 
   app.use(auth);
+
+  app.use(events);
 
   const apolloConfig: ApolloServerExpressConfig = {
     schema: makeExecutableSchema({

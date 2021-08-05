@@ -1,6 +1,11 @@
 import { PoolClient } from 'pg';
 import config from '../config';
-import { createProductsTable, createProductsTableIndex } from '../db/setup';
+import {
+  createInstallsTable,
+  createProductsTable,
+  createProductsTableIndex,
+  createStatsTable,
+} from '../db/setup';
 
 const attempts = 10;
 const backOffSecs = 10;
@@ -30,6 +35,8 @@ async function run(): Promise<void> {
     await client.query('BEGIN');
     await createProductsTable(client, config.productTableName, true);
     await createProductsTableIndex(client, config.productTableName, true);
+    await createStatsTable(client, config.statsTableName, true);
+    await createInstallsTable(client, config.installsTableName, true);
     await client.query('COMMIT');
   } catch (e) {
     await client.query('ROLLBACK');
