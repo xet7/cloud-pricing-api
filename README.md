@@ -1,6 +1,6 @@
 # Cloud Pricing API
 
-<a href="https://www.infracost.io/community-chat"><img alt="Community Slack channel" src="https://img.shields.io/badge/chat-Slack-%234a154b"/></a> <a href="https://hub.docker.com/r/infracost/infracost/tags"><img alt="Docker Image" src="https://img.shields.io/docker/cloud/build/infracost/infracost"/></a>
+<a href="https://www.infracost.io/community-chat"><img alt="Community Slack channel" src="https://img.shields.io/badge/chat-Slack-%234a154b"/></a> <a href="https://hub.docker.com/r/infracost/cloud-pricing-api/tags"><img alt="Docker Image" src="https://img.shields.io/badge/docker-passing-brightgreen"/></a>
 <a href="https://twitter.com/intent/tweet?text=Open%20source%20GraphQL%20API%20for%20cloud%20pricing.%20Contains%20over%203M%20public%20prices%20from%20AWS%2C%20Azure%20and%20GCP!&url=https://github.com/infracost/cloud-pricing-api&hashtags=cloud,price,aws,azure,gcp"><img alt="Tweet" src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social"/></a>
 
 The Cloud Pricing API is a GraphQL-based API that includes all public prices from AWS, Azure and Google; it contains over **3 million prices!** The prices are automatically updated via a weekly job. This API is used by the [Infracost CLI](https://github.com/infracost/infracost), thus you do not need to interact with it directly, however, you can also use it independently.
