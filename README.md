@@ -3,12 +3,12 @@
 <a href="https://www.infracost.io/community-chat"><img alt="Community Slack channel" src="https://img.shields.io/badge/chat-Slack-%234a154b"/></a> <a href="https://hub.docker.com/r/infracost/infracost/tags"><img alt="Docker Image" src="https://img.shields.io/docker/cloud/build/infracost/infracost"/></a>
 <a href="https://twitter.com/intent/tweet?text=Open%20source%20GraphQL%20API%20for%20cloud%20pricing.%20Contains%20over%203M%20public%20prices%20from%20AWS%2C%20Azure%20and%20GCP!&url=https://github.com/infracost/cloud-pricing-api&hashtags=cloud,price,aws,azure,gcp"><img alt="Tweet" src="https://img.shields.io/twitter/url/http/shields.io.svg?style=social"/></a>
 
-The Cloud Pricing API is a GraphQL-based API that includes all public prices from AWS, Azure and Google. The prices are updated via a weekly job. This API is used by the [Infracost CLI](https://github.com/infracost/infracost) but you can also use it independently.
+The Cloud Pricing API is a GraphQL-based API that includes all public prices from AWS, Azure and Google; it contains over **3 million prices!** The prices are automatically updated via a weekly job. This API is used by the [Infracost CLI](https://github.com/infracost/infracost), thus you do not need to interact with it directly, however, you can also use it independently.
 
 ## Example usage
 
 Infracost runs a hosted version of this API that you can use if you prefer that:
-1. Register for an API key by [downloading infracost](https://www.infracost.io/docs/#quick-start) and run `infracost register`.
+1. Register for an API key by [downloading infracost](https://www.infracost.io/docs/#quick-start) and running `infracost register`.
 2. If you'd like to use the API independently, pass the above API key using the `X-Api-Key: xxxx` HTTP header when calling [https://pricing.api.infracost.io/graphql](https://pricing.api.infracost.io/graphql). The following example `curl` fetches the latest price for an AWS EC2 m3.large instance in us-east-1. More examples can be found in `./examples/queries`.
 
     **Example request**:
@@ -31,13 +31,13 @@ Infracost runs a hosted version of this API that you can use if you prefer that:
 
 ## Deployment
 
-![Deployment overview](.github/assets/deployment_overview.png "Deployment overview")
-
 It should take around 15 mins to deploy the Cloud Pricing API. Two deployment methods are supported:
 1. If you have a Kubernetes cluster, we recommend using [our Helm Chart](https://github.com/infracost/helm-charts/tree/master/charts/cloud-pricing-api).
 2. If you prefer to deploy in a VM, we recommend using Docker compose.
 
 Either way, you can run the PostgreSQL DB on a single container/pod if your high-availability requirements allow for a few second downtime on container/pod restarts. No critical data is stored in the DB and the DB can be quickly recreated in the unlikely event of data corruption issues. Managed databases, such as a small AWS RDS or Azure Database for PostgreSQL, can also be used (pg version >= 13).
+
+![Deployment overview](.github/assets/deployment_overview.png "Deployment overview")
 
 The pricing DB dump is downloaded from Infracost's API as that simplifies the task of keeping prices up-to-date. We have created one job that you can run once a week to download the latest prices. This provides you with:
 1. **Fast updates**: our aim is to enable you to deploy this service in less than 15mins. Some cloud vendors paginates API calls to 100 resources at a time, and making too many requests result in errors; fetching prices directly from them takes more than an hour.
@@ -98,7 +98,11 @@ See [our Helm Chart](https://github.com/infracost/helm-charts/tree/master/charts
     infracost breakdown --path /path/to/code
     ```
 
-    You can also access the GraphQL Playground at [http://localhost:4000/graphql](http://localhost:4000/graphql) using something like the [modheader](https://bewisse.com/modheader/) browser extension so you can set the custom HTTP header `X-Api-Key` to your `SELF_HOSTED_INFRACOST_API_KEY`.
+We also recommend you setup a subdomain (and TLS certificate) to expose your self-hosted Cloud Pricing API to your Infracost CLI users.
+
+You can also access the GraphQL Playground at [http://localhost:4000/graphql](http://localhost:4000/graphql) using something like the [modheader](https://bewisse.com/modheader/) browser extension so you can set the custom HTTP header `X-Api-Key` to your `SELF_HOSTED_INFRACOST_API_KEY`.
+
+The environment variable `DISABLE_TELEMETRY` can be set to `true` to opt-out of telemetry.
 
 ## Contributing
 
