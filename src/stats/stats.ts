@@ -72,8 +72,8 @@ export async function incrementCounters(
     `UPDATE %I SET \
     updated_at = NOW(),
     total_runs = total_runs + 1
-    ${isCi ? ', ci_runs = ci_runs + 1' : ', non_ci_runs = non_ci_runs + 1'}
-    config.statsTableName`
+    ${isCi ? ', ci_runs = ci_runs + 1' : ', non_ci_runs = non_ci_runs + 1'}`,
+    config.statsTableName
   );
 
   await pool.query(sql);

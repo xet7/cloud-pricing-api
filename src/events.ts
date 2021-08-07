@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request } from 'express';
 import _ from 'lodash';
 import axios from 'axios';
 import config from './config';
@@ -14,18 +14,20 @@ router.post('/event', async (req, res) => {
     incrementCounters(isCi, installId);
   }
 
-  if (!config.disableTelemetry) {
-    await forwardEvent(req.body?.event || '', req.body?.env);
-  }
+  await forwardEvent(req);
 
   return res.json({ status: 'ok' });
 });
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-async function forwardEvent(event: string, env: any): Promise<void> {
+async function forwardEvent(req: Request): Promise<void> {
+  if (config.disableTelemetry) {
+    return;
+  }
+
   // Only forward run events
-  if (event !== 'infracost-run') {
+  if (req.body?.event !== 'infracost-run') {
     return;
   }
 
@@ -33,9 +35,9 @@ async function forwardEvent(event: string, env: any): Promise<void> {
   const attrs = ['ciPlatform', 'ciScript', 'fullVersion', 'installId'];
 
   const body = {
-    event,
+    event: req.body.event,
     env: {
-      ..._.pick(env, attrs),
+      ..._.pick(req.body?.env || {}, attrs),
       isSelfHosted: true,
     },
   };
