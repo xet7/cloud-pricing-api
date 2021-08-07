@@ -59,7 +59,7 @@ const resolvers: IResolvers = {
     prices: async (product: Product, args: PricesArgs): Promise<Price[]> => {
       const prices = mingo
         .find(product.prices, transformFilter(args.filter))
-        .all();
+        .all() as Price[];
       await convertCurrencies(prices);
       return prices;
     },

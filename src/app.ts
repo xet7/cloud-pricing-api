@@ -1,5 +1,6 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import { ApolloServer, ApolloServerExpressConfig } from 'apollo-server-express';
+import { ApolloServerPluginLandingPageGraphQLPlayground } from 'apollo-server-core';
 import { makeExecutableSchema } from 'graphql-tools';
 import pinoHttp from 'pino-http';
 import config from './config';
@@ -17,7 +18,7 @@ interface ResponseError extends Error {
   status?: number;
 }
 
-function createApp(opts: ApplicationOptions = {}): Application {
+async function createApp(opts: ApplicationOptions = {}): Promise<Application> {
   const app = express();
 
   app.use(
@@ -56,12 +57,15 @@ function createApp(opts: ApplicationOptions = {}): Application {
       resolvers,
     }),
     introspection: true,
-    playground: true,
-    plugins: [() => new ApolloLogger(config.logger)],
+    plugins: [
+      ApolloServerPluginLandingPageGraphQLPlayground(),
+      () => new ApolloLogger(config.logger),
+    ],
     ...opts.apolloConfigOverrides,
   };
 
   const apollo = new ApolloServer(apolloConfig);
+  await apollo.start();
 
   apollo.applyMiddleware({ app });
 

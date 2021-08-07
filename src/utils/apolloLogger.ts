@@ -21,9 +21,9 @@ function truncate(str: string, l = DEFAULT_TRUNCATE_LENGTH): string {
 export default class ApolloLogger implements ApolloServerPlugin {
   constructor(private logger: Logger) {}
 
-  requestDidStart(
+  async requestDidStart(
     requestContext: GraphQLRequestContext
-  ): GraphQLRequestListener {
+  ): Promise<GraphQLRequestListener> {
     const { logger } = this;
 
     if (requestContext.request.query?.startsWith('query IntrospectionQuery')) {
@@ -44,11 +44,15 @@ export default class ApolloLogger implements ApolloServerPlugin {
     );
 
     return {
-      didEncounterErrors(requestContext: GraphQLRequestContext) {
+      async didEncounterErrors(
+        requestContext: GraphQLRequestContext
+      ): Promise<void> {
         const errors = truncate(JSON.stringify(requestContext.errors));
         logger.error(ctx, `GraphQL encountered errors:\n${errors}`);
       },
-      willSendResponse(requestContext: GraphQLRequestContext) {
+      async willSendResponse(
+        requestContext: GraphQLRequestContext
+      ): Promise<void> {
         const respData = truncate(
           JSON.stringify(requestContext.response?.data)
         );
