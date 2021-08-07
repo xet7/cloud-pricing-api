@@ -39,9 +39,14 @@ async function run(): Promise<void> {
 
     await replaceProductTable(client);
 
+    await setPriceUpdateSuccessful(client);
+
     await client.query('COMMIT');
   } catch (e) {
     await client.query('ROLLBACK');
+
+    await setPriceUpdateError(client);
+
     throw e;
   } finally {
     client.release();
@@ -113,6 +118,29 @@ async function loadFile(client: PoolClient, filename: string): Promise<void> {
   readStream.on('data', (buffer) => progressBar.tick(buffer.length));
 
   return promisifiedPipeline(readStream, gunzip, pgCopy);
+}
+
+async function setPriceUpdateSuccessful(client: PoolClient) {
+  await client.query(
+    format(
+      `UPDATE %I SET
+      updated_at = NOW(),
+      prices_last_successfully_updated_at = NOW(),
+      prices_last_update_successful = true`,
+      config.statsTableName
+    )
+  );
+}
+
+async function setPriceUpdateError(client: PoolClient) {
+  await client.query(
+    format(
+      `UPDATE %I SET
+      updated_at = NOW(),
+      prices_last_update_successful = false`,
+      config.statsTableName
+    )
+  );
 }
 
 config.logger.info('Starting: loading data into DB');

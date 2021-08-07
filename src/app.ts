@@ -3,6 +3,7 @@ import { ApolloServer, ApolloServerExpressConfig } from 'apollo-server-express';
 import { ApolloServerPluginLandingPageGraphQLPlayground } from 'apollo-server-core';
 import { makeExecutableSchema } from 'graphql-tools';
 import pinoHttp from 'pino-http';
+import path from 'path';
 import config from './config';
 import ApolloLogger from './utils/apolloLogger';
 import resolvers from './resolvers';
@@ -10,6 +11,8 @@ import typeDefs from './typeDefs';
 import health from './health';
 import auth from './auth';
 import events from './events';
+import stats from './stats';
+import home from './home';
 
 type ApplicationOptions = {
   apolloConfigOverrides?: ApolloServerExpressConfig;
@@ -37,6 +40,11 @@ async function createApp(opts: ApplicationOptions = {}): Promise<Application> {
     })
   );
 
+  app.use(express.static(path.join(__dirname, 'public')));
+  app.set('views', path.join(__dirname, 'views'));
+  app.set('view engine', 'ejs');
+  app.use(home);
+
   app.use(express.json());
   app.use(
     (err: ResponseError, _req: Request, res: Response, next: NextFunction) => {
@@ -53,6 +61,7 @@ async function createApp(opts: ApplicationOptions = {}): Promise<Application> {
   app.use(auth);
 
   app.use(events);
+  app.use(stats);
 
   const apolloConfig: ApolloServerExpressConfig = {
     schema: makeExecutableSchema({

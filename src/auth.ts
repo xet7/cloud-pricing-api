@@ -13,6 +13,7 @@ async function auth(
     config.selfHostedInfracostAPIKey !== apiKey
   ) {
     res.status(403).json({ error: 'Invalid API key' });
+    return;
   }
   next();
 }
