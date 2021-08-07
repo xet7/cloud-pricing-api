@@ -9,9 +9,18 @@ router.get('/stats', async (_req, res) => {
 
   const sql = format(
     `
-    SELECT created_at, prices_last_successfully_updated_at, prices_last_update_successful, total_runs, ci_runs, non_ci_runs, non_ci_installs
-    FROM %I
-    LIMIT 1`,
+    SELECT
+      stats.created_at,
+      stats.prices_last_successfully_updated_at,
+      stats.prices_last_update_successful,
+      stats.total_runs,
+      stats.ci_runs,
+      stats.non_ci_runs,
+      (SELECT COUNT(installs.install_id) FROM %I) as non_ci_installs
+    FROM %I as stats
+    LIMIT 1
+    `,
+    config.installsTableName,
     config.statsTableName
   );
 

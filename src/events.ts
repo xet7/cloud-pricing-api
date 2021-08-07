@@ -39,8 +39,6 @@ async function incrementCounters(req: Request) {
   const isCI = !!req.body?.env?.ciPlatform;
   const installId = req.body?.env?.installId;
 
-  let isNewNonCIInstall = false;
-
   const pool = await config.pg();
 
   if (!isCI && installId) {
@@ -52,8 +50,7 @@ async function incrementCounters(req: Request) {
       installId
     );
 
-    const response = await pool.query(sql);
-    isNewNonCIInstall = response.rowCount > 0;
+    await pool.query(sql);
   }
 
   const sql = format(
@@ -61,8 +58,7 @@ async function incrementCounters(req: Request) {
     updated_at = NOW(),
     total_runs = total_runs + 1
     ${isCI ? ', ci_runs = ci_runs + 1' : ', non_ci_runs = non_ci_runs + 1'}
-    ${isNewNonCIInstall ? ', non_ci_installs = non_ci_installs + 1' : ''}`,
-    config.statsTableName
+    config.statsTableName`
   );
 
   await pool.query(sql);

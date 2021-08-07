@@ -61,8 +61,7 @@ export async function createStatsTable(
         prices_last_update_successful boolean,
         total_runs bigint DEFAULT 0,
         ci_runs bigint DEFAULT 0,
-        non_ci_runs bigint DEFAULT 0,
-        non_ci_installs int DEFAULT 0
+        non_ci_runs bigint DEFAULT 0
       )   
     `,
       tableName
