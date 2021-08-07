@@ -5,6 +5,7 @@ import awsSpot from '../scrapers/awsSpot';
 import azureRetail from '../scrapers/azureRetail';
 import gcpCatalog from '../scrapers/gcpCatalog';
 import gcpMachineTypes from '../scrapers/gcpMachineTypes';
+import { setPriceUpdateFailed, setPriceUpdateSuccessful } from '../stats/stats';
 
 interface ScraperConfig {
   vendor: string;
@@ -55,11 +56,24 @@ async function run(): Promise<void> {
     });
   });
 
+  let success = true;
+
   for (const scraperConfig of scraperConfigs) {
     config.logger.info(
       `Running update function for ${scraperConfig.vendor}:${scraperConfig.source}`
     );
-    await scraperConfig.scraperFunc();
+    try {
+      await scraperConfig.scraperFunc();
+    } catch (err) {
+      config.logger.error(err);
+      success = false;
+    }
+  }
+
+  if (success) {
+    await setPriceUpdateSuccessful();
+  } else {
+    await setPriceUpdateFailed();
   }
 }
 

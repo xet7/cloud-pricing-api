@@ -1,15 +1,18 @@
-import express, { Request } from 'express';
+import express from 'express';
 import _ from 'lodash';
 import axios from 'axios';
-import format from 'pg-format';
 import config from './config';
+import { incrementCounters } from './stats/stats';
 
 const router = express.Router();
 
 router.post('/event', async (req, res) => {
   // Store the counters
   if (req.body.event === 'infracost-run') {
-    incrementCounters(req);
+    const isCi = !!req.body?.env?.ciPlatform;
+    const installId = req.body?.env?.installId;
+
+    incrementCounters(isCi, installId);
   }
 
   // Forward events to Dashboard
@@ -34,34 +37,5 @@ router.post('/event', async (req, res) => {
 
   return res.json({ status: 'ok' });
 });
-
-async function incrementCounters(req: Request) {
-  const isCI = !!req.body?.env?.ciPlatform;
-  const installId = req.body?.env?.installId;
-
-  const pool = await config.pg();
-
-  if (!isCI && installId) {
-    const sql = format(
-      `
-      INSERT INTO %I (install_id) VALUES (%L)
-      ON CONFLICT (install_id) DO NOTHING`,
-      config.installsTableName,
-      installId
-    );
-
-    await pool.query(sql);
-  }
-
-  const sql = format(
-    `UPDATE %I SET \
-    updated_at = NOW(),
-    total_runs = total_runs + 1
-    ${isCI ? ', ci_runs = ci_runs + 1' : ', non_ci_runs = non_ci_runs + 1'}
-    config.statsTableName`
-  );
-
-  await pool.query(sql);
-}
 
 export default router;

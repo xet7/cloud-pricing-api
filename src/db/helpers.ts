@@ -2,7 +2,7 @@ import _ from 'lodash';
 import crypto from 'crypto';
 import { Product, Price } from './types';
 
-function generateProductHash(product: Product): string {
+export function generateProductHash(product: Product): string {
   let hashFields: string[];
   // keep AWS product hashes the same so Infracost tests don't break
   if (product.vendorName === 'aws') {
@@ -18,7 +18,7 @@ function generateProductHash(product: Product): string {
     .digest('hex');
 }
 
-function generatePriceHash(product: Product, price: Price): string {
+export function generatePriceHash(product: Product, price: Price): string {
   let hashFields: string[];
   // keep AWS price hashes the same so Infracost tests don't break
   if (product.vendorName === 'aws') {
@@ -50,4 +50,22 @@ function generatePriceHash(product: Product, price: Price): string {
   return `${product.productHash}-${hash}`;
 }
 
-export { generateProductHash, generatePriceHash };
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+export function camelKeys(obj: any): any {
+  if (Array.isArray(obj)) {
+    return obj.map((v) => camelKeys(v));
+  }
+  if (_.isPlainObject(obj)) {
+    return Object.keys(obj).reduce(
+      (result, key) => ({
+        ...result,
+        [_.camelCase(key)]: camelKeys(obj[key]),
+      }),
+      {}
+    );
+  }
+  return obj;
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */

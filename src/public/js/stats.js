@@ -55,16 +55,14 @@
         <table class="stats-table">
           <tr>
             <th>Installed</th>
-            <td>${new Date(data.created_at).toLocaleString()}</td>
+            <td>${new Date(data.createdAt).toLocaleString()}</td>
           </tr>
           <tr>
             <th>Prices last updated</th>
             <td>
-              ${new Date(
-                data.prices_last_successfully_updated_at
-              ).toLocaleString()}
+              ${new Date(data.pricesLastSuccessfullyUpdatedAt).toLocaleString()}
               ${
-                new Date(data.prices_last_successfully_updated_at).getTime() <
+                new Date(data.pricesLastSuccessfullyUpdatedAt).getTime() <
                 new Date().getTime() - priceUpdateThreshold
                   ? '<img src="/img/warning.svg" class="status-icon" /> <span>Prices haven\'t been updated for over 7 days</span>'
                   : ''
@@ -74,26 +72,26 @@
           <tr>
             <th>Last price update was successful</th>
             <td><img src="/img/${
-              data.prices_last_update_successful ? 'check.svg' : 'cross.svg'
+              data.pricesLastUpdateSuccessful ? 'check.svg' : 'cross.svg'
             }" class="icon status" alt="${
-          data.prices_last_update_successful ? 'Success' : 'Failed'
+          data.pricesLastUpdateSuccessful ? 'Success' : 'Failed'
         }" /></td>
           </tr>
           <tr>
             <th>Total runs</th>
-            <td>${data.total_runs}</td>
+            <td>${data.totalRuns}</td>
           </tr>
           <tr>
             <th>Total CLI user runs</th>
-            <td>${data.non_ci_runs}</td>
+            <td>${data.nonCiRuns}</td>
           </tr>
           <tr>
             <th>Total CI/CD system runs</th>
-            <td>${data.ci_runs}</td>
+            <td>${data.ciRuns}</td>
           </tr>
           <tr>
             <th>CLI users installed</th>
-            <td>${data.non_ci_installs}</td>
+            <td>${data.nonCiInstalls}</td>
           </tr>
         </table>
       `;

@@ -15,6 +15,7 @@ import {
   createProductsTableIndex,
   renameProductsTable,
 } from '../db/setup';
+import { setPriceUpdateFailed, setPriceUpdateSuccessful } from '../stats/stats';
 
 async function run(): Promise<void> {
   const pool = await config.pg();
@@ -45,7 +46,7 @@ async function run(): Promise<void> {
   } catch (e) {
     await client.query('ROLLBACK');
 
-    await setPriceUpdateError(client);
+    await setPriceUpdateFailed(client);
 
     throw e;
   } finally {
@@ -118,29 +119,6 @@ async function loadFile(client: PoolClient, filename: string): Promise<void> {
   readStream.on('data', (buffer) => progressBar.tick(buffer.length));
 
   return promisifiedPipeline(readStream, gunzip, pgCopy);
-}
-
-async function setPriceUpdateSuccessful(client: PoolClient) {
-  await client.query(
-    format(
-      `UPDATE %I SET
-      updated_at = NOW(),
-      prices_last_successfully_updated_at = NOW(),
-      prices_last_update_successful = true`,
-      config.statsTableName
-    )
-  );
-}
-
-async function setPriceUpdateError(client: PoolClient) {
-  await client.query(
-    format(
-      `UPDATE %I SET
-      updated_at = NOW(),
-      prices_last_update_successful = false`,
-      config.statsTableName
-    )
-  );
 }
 
 config.logger.info('Starting: loading data into DB');
