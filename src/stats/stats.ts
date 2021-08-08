@@ -101,5 +101,5 @@ export async function fetchStats(): Promise<Stats | null> {
 
   const response = await pool.query(sql);
 
-  return response.rows.length > 0 ? (camelKeys(response.rows) as Stats) : null;
+  return response.rows.length > 0 ? (camelKeys(response.rows[0]) as Stats) : null;
 }

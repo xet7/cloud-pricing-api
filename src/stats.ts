@@ -4,7 +4,7 @@ import { fetchStats } from './stats/stats';
 const router = express.Router();
 
 router.get('/stats', async (_req, res) => {
-  const stats = fetchStats();
+  const stats = await fetchStats();
 
   return res.json(stats);
 });
