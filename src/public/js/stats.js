@@ -18,12 +18,17 @@
       .then((data) => {
         const latestVersion = data.tag_name.substr(1);
 
+        let content = `
+          <p><img src="/img/check.svg" class="icon" alt="Success" /> Cloud Pricing API is using the latest version.</p>
+        `;
         // eslint-disable-next-line no-underscore-dangle
         if (latestVersion !== window.__CLOUD_PRICING_API_VERSION__) {
-          document.getElementById('version-warning').innerHTML = `
-          <p><img src="/img/warning.svg" class="icon" alt="Warning" /> Cloud Pricing API is using an old version. The latest version is v${latestVersion}.</p>
+          content = `
+          <p class="warning"><img src="/img/warning.svg" class="icon" alt="Warning" /> Cloud Pricing API is using an old version. The latest version is v${latestVersion}.</p>
         `;
         }
+
+        document.getElementById('version-message').innerHTML = content;
       })
       .catch((error) => {
         // eslint-disable-next-line no-console

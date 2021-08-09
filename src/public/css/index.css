@@ -37,16 +37,13 @@ pre {
 
 .icon {
   height: 16px;
+  margin-bottom: -2px;
   width: 16px;
 }
 
 .stats-table th {
   text-align: right;
   padding-right: 1rem;
-}
-
-.status.icon {
-  margin-bottomn: -2px;
 }
 
 .cta {
@@ -69,11 +66,19 @@ pre {
   margin-bottom: 0.5rem;
 }
 
-#version-warning p {
+#version-message {
+  margin-bottom: 2rem;
+}
+
+#version-message p.warning {
   background-color: #FCF5EB;
   border: 1px solid #FDDE96;
   border-radius: 4px;
   padding: 0.5rem;
+}
+
+#configure {
+  margin-bottom: 2rem;
 }
 
 #stats {

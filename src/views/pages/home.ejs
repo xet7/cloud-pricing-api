@@ -13,13 +13,13 @@
     <img id="logo" src="/img/logo.svg" alt="Infracost logo" />
     <p id="success-message"><a href="https://github.com/infracost/cloud-pricing-api" target="_blank">Cloud Pricing API (v<%= version %>)</a> has been successfully installed! 🥳🎉</p>
 
-    <div id="version-warning"></div>
+    <div id="version-message"></div>
 
-    <p>
-      To configure the Infracost CLI to use this API run the following commands:
+    <div id="configure">
+      <span>To configure the Infracost CLI to use this API run the following commands:</span>
       <pre>infracost configure set pricing_api_endpoint <span id="cloud-pricing-api-endpoint">http://cloud-pricing-api</span>
 infracost configure set api_key SELF_HOSTED_INFRACOST_API_KEY</pre>
-    </p>
+    </div>
 
     <div id="stats">
       <p>To see statistics enter your self-hosted API key below:</p>
