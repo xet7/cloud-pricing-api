@@ -81,8 +81,8 @@
         document.getElementById('stats-results').innerHTML = `
         <table class="stats-table">
           <tr>
-            <th>Installed</th>
-            <td>${new Date(data.createdAt).toLocaleString()}</td>
+            <th>Last price update was successful</th>
+            <td>${pricesLastUpdateSuccessfulContent}</td>
           </tr>
           <tr>
             <th>Prices last updated</th>
@@ -91,23 +91,11 @@
             </td>
           </tr>
           <tr>
-            <th>Last price update was successful</th>
-            <td>${pricesLastUpdateSuccessfulContent}</td>
+            <th>Total number of cost estimates</th>
+            <td>${data.totalRuns} since ${new Date(data.createdAt).toLocaleDateString()} (${data.nonCiRuns} from CLI users, ${data.ciRuns} from CI/CD systems)</td>
           </tr>
           <tr>
-            <th>Total runs</th>
-            <td>${data.totalRuns}</td>
-          </tr>
-          <tr>
-            <th>Total CLI user runs</th>
-            <td>${data.nonCiRuns}</td>
-          </tr>
-          <tr>
-            <th>Total CI/CD system runs</th>
-            <td>${data.ciRuns}</td>
-          </tr>
-          <tr>
-            <th>CLI users installed</th>
+            <th>CLI users using this service</th>
             <td>${data.nonCiInstalls}</td>
           </tr>
         </table>
