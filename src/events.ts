@@ -42,12 +42,16 @@ async function forwardEvent(req: Request): Promise<void> {
     },
   };
 
-  await axios.post(`${config.infracostDashboardApiEndpoint}/event`, body, {
-    headers: {
-      'X-Api-Key': config.infracostAPIKey,
-      'X-Cloud-Pricing-Api-Version': process.env.npm_package_version,
-    },
-  });
+  try {
+    await axios.post(`${config.infracostDashboardApiEndpoint}/event`, body, {
+      headers: {
+        'X-Api-Key': config.infracostAPIKey,
+        'X-Cloud-Pricing-Api-Version': process.env.npm_package_version,
+      },
+    });
+  } catch (err) {
+    config.logger.error(`Error forwarding event to Infracost API: ${err}`);
+  }
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 /* eslint-enable @typescript-eslint/explicit-module-boundary-types */
