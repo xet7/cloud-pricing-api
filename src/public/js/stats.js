@@ -24,7 +24,7 @@
         // eslint-disable-next-line no-underscore-dangle
         if (latestVersion !== window.__CLOUD_PRICING_API_VERSION__) {
           content = `
-          <p class="warning"><img src="/img/warning.svg" class="icon" alt="Warning" /> Cloud Pricing API is using an old version. The latest version is v${latestVersion}.</p>
+          <p class="warning"><img src="/img/warning.svg" class="icon" alt="Warning" /> Cloud Pricing API is using an old version. <a href="https://www.infracost.io/cloud-pricing-api-upgrade" target="_blank">Upgrade to v${latestVersion}</a>.</p>
         `;
         }
 
