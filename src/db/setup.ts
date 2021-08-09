@@ -42,6 +42,16 @@ export async function createProductsTableIndex(
       tableName
     )
   );
+
+  await client.query(
+    format(
+      `CREATE INDEX ${
+        ifNotExists ? 'IF NOT EXISTS' : ''
+      } %I ON %I USING btree (service, region, "productFamily", (attributes->>'instanceType'), (attributes->>'operatingSystem'), (attributes->>'capacitystatus'), (attributes->>'preInstalledSw'))`,
+      `${tableName}_ec2_instances_index`,
+      tableName
+    )
+  );
 }
 
 export async function createStatsTable(
