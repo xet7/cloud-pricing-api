@@ -22,6 +22,10 @@ button {
   padding: 0.5rem 0.75rem;
 }
 
+button:hover {
+  background-color: #cc21a5;
+}
+
 pre {
   background-color: #F5F5F9;
   border: 1px solid #DCD8E1;
