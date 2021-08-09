@@ -89,16 +89,25 @@ See [our Helm Chart](https://github.com/infracost/helm-charts/tree/master/charts
     0 4 * * SUN docker-compose run --rm update_job npm run job:update >> /var/log/cron.log 2>&1
     ```
 
-7. Configure the Infracost CLI to use your self-hosted Cloud Pricing API:
+7. When using the CLI locally, run the following two required commands to point your CLI to your self-hosted Cloud Pricing API:
 
     ```sh
-    export INFRACOST_PRICING_API_ENDPOINT=http://localhost:4000
-    export INFRACOST_API_KEY=$SELF_HOSTED_INFRACOST_API_KEY
+    infracost configure set pricing_api_endpoint http://localhost:4000
+    infracost configure set api_key $SELF_HOSTED_INFRACOST_API_KEY
     
     infracost breakdown --path /path/to/code
     ```
 
-We also recommend you setup a subdomain (and TLS certificate) to expose your self-hosted Cloud Pricing API to your Infracost CLI users.
+8. In CI/CD systems, set the following two required environment variables:
+
+    ```sh
+    export INFRACOST_PRICING_API_ENDPOINT=https://endpoint
+    export INFRACOST_API_KEY=$SELF_HOSTED_INFRACOST_API_KEY
+    ```
+
+9. The home page for the Cloud Pricing API, [http://localhost:4000](http://localhost:4000), shows if prices are up-to-date and some statistics.
+
+We recommend you setup a subdomain (and TLS certificate) to expose your self-hosted Cloud Pricing API to your Infracost CLI users.
 
 You can also access the GraphQL Playground at [http://localhost:4000/graphql](http://localhost:4000/graphql) using something like the [modheader](https://bewisse.com/modheader/) browser extension so you can set the custom HTTP header `X-Api-Key` to your `SELF_HOSTED_INFRACOST_API_KEY`.
 

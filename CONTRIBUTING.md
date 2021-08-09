@@ -51,6 +51,8 @@
     npm run job:init && npm run data:status:dev
     ```
 
+    If there are DB changes, run `npm run db:setup` to apply them. The init job runs this too so this should only be needed if you haven't run that recently.
+
 7. Prices can be kept up-to-date by running the update job once a week, for example from cron:
 
     ```sh
