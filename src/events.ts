@@ -32,7 +32,13 @@ async function forwardEvent(req: Request): Promise<void> {
   }
 
   // Only forward the following attributes
-  const attrs = ['ciPlatform', 'ciScript', 'fullVersion', 'installId', 'version'];
+  const attrs = [
+    'ciPlatform',
+    'ciScript',
+    'fullVersion',
+    'installId',
+    'version',
+  ];
 
   const body = {
     event: req.body.event,
