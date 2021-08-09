@@ -51,6 +51,28 @@
         }
       })
       .then((data) => {
+        let pricesLastUpdatedContent = 'Never';
+        if (data.pricesLastSuccessfullyUpdatedAt) {
+          pricesLastUpdatedContent = new Date(
+            data.pricesLastSuccessfullyUpdatedAt
+          ).toLocaleString();
+        }
+
+        if (
+          !data.pricesLastSuccessfullyUpdatedAt ||
+          new Date(data.pricesLastSuccessfullyUpdatedAt).getTime() <
+            new Date().getTime() - priceUpdateThreshold
+        ) {
+          pricesLastUpdatedContent += ` <img src="/img/warning.svg" class="icon status" /> <span>Prices haven't been updated for over 7 days</span>`;
+        }
+
+        let pricesLastUpdateSuccessfulContent = 'N/A';
+        if (data.pricesLastUpdateSuccessful === true) {
+          pricesLastUpdateSuccessfulContent = `<img src="/img/check.svg" class="icon status" alt="Success" />`;
+        } else if (data.pricesLastUpdateSuccessful === false) {
+          pricesLastUpdateSuccessfulContent = `<img src="/img/cross.svg" class="icon status" alt="Failed" />`;
+        }
+
         document.getElementById('stats-results').innerHTML = `
         <table class="stats-table">
           <tr>
@@ -60,22 +82,12 @@
           <tr>
             <th>Prices last updated</th>
             <td>
-              ${new Date(data.pricesLastSuccessfullyUpdatedAt).toLocaleString()}
-              ${
-                new Date(data.pricesLastSuccessfullyUpdatedAt).getTime() <
-                new Date().getTime() - priceUpdateThreshold
-                  ? '<img src="/img/warning.svg" class="status-icon" /> <span>Prices haven\'t been updated for over 7 days</span>'
-                  : ''
-              }
+              ${pricesLastUpdatedContent}
             </td>
           </tr>
           <tr>
             <th>Last price update was successful</th>
-            <td><img src="/img/${
-              data.pricesLastUpdateSuccessful ? 'check.svg' : 'cross.svg'
-            }" class="icon status" alt="${
-          data.pricesLastUpdateSuccessful ? 'Success' : 'Failed'
-        }" /></td>
+            <td>${pricesLastUpdateSuccessfulContent}</td>
           </tr>
           <tr>
             <th>Total runs</th>
