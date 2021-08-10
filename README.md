@@ -111,6 +111,8 @@ We recommend you setup a subdomain (and TLS certificate) to expose your self-hos
 
 You can also access the GraphQL Playground at [http://localhost:4000/graphql](http://localhost:4000/graphql) using something like the [modheader](https://bewisse.com/modheader/) browser extension so you can set the custom HTTP header `X-Api-Key` to your `SELF_HOSTED_INFRACOST_API_KEY`.
 
+To upgrade to the latest version, run `docker-compose pull` followed by `docker-compose up`.
+
 The environment variable `DISABLE_TELEMETRY` can be set to `true` to opt-out of telemetry.
 
 ## Contributing
