@@ -71,7 +71,8 @@
           pricesLastUpdatedContent += ` <img src="/img/warning.svg" class="icon status" /> <span>Prices haven't been updated for over 7 days</span>`;
         }
 
-        let pricesLastUpdateSuccessfulContent = 'Not available (price update job might still be running)';
+        let pricesLastUpdateSuccessfulContent =
+          'Not available (price update job might still be running)';
         if (data.pricesLastUpdateSuccessful === true) {
           pricesLastUpdateSuccessfulContent = `<img src="/img/check.svg" class="icon status" alt="Success" />`;
         } else if (data.pricesLastUpdateSuccessful === false) {
