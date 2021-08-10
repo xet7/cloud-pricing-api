@@ -1,6 +1,6 @@
 {
   "name": "cloud-pricing-api",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Cloud Pricing API",
   "main": "src/server.js",
   "scripts": {
@@ -27,7 +27,7 @@
     "lint": "eslint --ext .ts,.js --ignore-path .gitignore .",
     "format": "prettier --write 'src/**/*.{js,ts}'"
   },
-  "author": "Alistair Scott",
+  "author": "Infracost",
   "license": "Apache-2.0",
   "licenses": [
     {
