@@ -32,6 +32,10 @@ async function run(): Promise<void> {
   try {
     await client.query('BEGIN');
 
+    await client.query(
+      format(`DROP TABLE IF EXISTS %I`, 'ProductLoad')
+    );
+
     await createProductsTable(client, 'ProductLoad');
 
     await loadFiles(argv.path, client);

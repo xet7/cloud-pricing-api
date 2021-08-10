@@ -130,4 +130,11 @@ export async function renameProductsTable(
       `${newTableName}_service_region_index`
     )
   );
+  await client.query(
+    format(
+      `ALTER INDEX %I RENAME TO %I`,
+      `${oldTableName}_ec2_instances_index`,
+      `${newTableName}_ec2_instances_index`
+    )
+  );
 }
