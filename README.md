@@ -5,7 +5,7 @@
 
 The Cloud Pricing API is a GraphQL-based API that includes all public prices from AWS, Azure and Google; it contains over **3 million prices!** The prices are automatically updated via a weekly job. This API is used by the [Infracost CLI](https://github.com/infracost/infracost), thus you do not need to interact with it directly, however, you can also use it independently.
 
-## Example usage
+## Usage
 
 Infracost runs a hosted version of this API that you can use if you prefer that:
 1. Register for an API key by [downloading infracost](https://www.infracost.io/docs/#quick-start) and running `infracost register`.
@@ -29,19 +29,25 @@ Infracost runs a hosted version of this API that you can use if you prefer that:
     
     The [GraphQL Playground](https://pricing.api.infracost.io/graphql) can also be used with something like the [modheader](https://bewisse.com/modheader/) browser extension so you can set the custom HTTP header `X-Api-Key` to your Infracost API key.
 
-## Deployment
+## Architecture
 
-It should take around 15 mins to deploy the Cloud Pricing API. Two deployment methods are supported:
-1. If you have a Kubernetes cluster, we recommend using [our Helm Chart](https://github.com/infracost/helm-charts/tree/master/charts/cloud-pricing-api).
-2. If you prefer to deploy in a VM, we recommend using Docker compose.
-
-Either way, you can run the PostgreSQL DB on a single container/pod if your high-availability requirements allow for a few second downtime on container/pod restarts. No critical data is stored in the DB and the DB can be quickly recreated in the unlikely event of data corruption issues. Managed databases, such as a small AWS RDS or Azure Database for PostgreSQL, can also be used (pg version >= 13).
+The following diagram shows an overview of the architecture.
 
 ![Deployment overview](.github/assets/deployment_overview.png "Deployment overview")
 
 The pricing DB dump is downloaded from Infracost's API as that simplifies the task of keeping prices up-to-date. We have created one job that you can run once a week to download the latest prices. This provides you with:
 1. **Fast updates**: our aim is to enable you to deploy this service in less than 15mins. Some cloud vendors paginates API calls to 100 resources at a time, and making too many requests result in errors; fetching prices directly from them takes more than an hour.
 2. **Complete updates**: We run [integration tests](https://github.com/infracost/infracost/actions) to ensure that the CLI is using the correct prices. In the past, there have been cases when cloud providers have tweaked their pricing API data that caused direct downloads to fail. With this method, we check the pricing data passes our integration tests before publishing them, and everyone automatically gets the entire up-to-date data. The aim is reduce the risk of failed or partial updates.
+
+## Deployment
+
+It should take around 15 mins to deploy the Cloud Pricing API. Two deployment methods are supported:
+1. If you have a Kubernetes cluster, we recommend using [our Helm Chart](https://github.com/infracost/helm-charts/tree/master/charts/cloud-pricing-api).
+2. If you prefer to deploy in a VM, we recommend using [Docker compose](#docker-compose).
+
+The Cloud Pricing API includes an unauthenticated `/health` path that is used by the Helm chart and Docker compose deployments.
+
+The PostgreSQL DB is run on a single container/pod by default, which should be fine if your high-availability requirements allow for a few second downtime on container/pod restarts. No critical data is stored in the DB and the DB can be quickly recreated in the unlikely event of data corruption issues. Managed databases, such as a small AWS RDS or Azure Database for PostgreSQL, can also be used (PostgreSQL version >= 13). Since the pricing data can be quickly populated by running the update job, you can probably start without a backup strategy.
 
 ### Helm chart
 
@@ -106,6 +112,8 @@ See [our Helm Chart](https://github.com/infracost/helm-charts/tree/master/charts
     ```
 
 9. The home page for the Cloud Pricing API, [http://localhost:4000](http://localhost:4000), shows if prices are up-to-date and some statistics.
+
+![Stats page](.github/assets/stats_page.png "Stats page")
 
 We recommend you setup a subdomain (and TLS certificate) to expose your self-hosted Cloud Pricing API to your Infracost CLI users.
 
