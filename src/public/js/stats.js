@@ -92,7 +92,11 @@
           </tr>
           <tr>
             <th>Total number of cost estimates</th>
-            <td>${data.totalRuns} since ${new Date(data.createdAt).toLocaleDateString()} (${data.nonCiRuns} from CLI users, ${data.ciRuns} from CI/CD systems)</td>
+            <td>${data.totalRuns} since ${new Date(
+          data.createdAt
+        ).toLocaleDateString()} (${data.nonCiRuns} from CLI users, ${
+          data.ciRuns
+        } from CI/CD systems)</td>
           </tr>
           <tr>
             <th>CLI users using this service</th>
