@@ -16,6 +16,9 @@ import home from './home';
 
 type ApplicationOptions = {
   apolloConfigOverrides?: ApolloServerExpressConfig;
+  disableRequestLogging?: boolean;
+  disableStats?: boolean;
+  disableAuth?: boolean;
 };
 
 interface ResponseError extends Error {
@@ -25,25 +28,29 @@ interface ResponseError extends Error {
 async function createApp(opts: ApplicationOptions = {}): Promise<Application> {
   const app = express();
 
-  app.use(
-    pinoHttp({
-      logger: config.logger,
-      customLogLevel(res, err) {
-        if (err || res.statusCode === 500) {
-          return 'error';
-        }
-        return 'info';
-      },
-      autoLogging: {
-        ignorePaths: ['/health'],
-      },
-    })
-  );
+  if (!opts.disableRequestLogging) {
+    app.use(
+      pinoHttp({
+        logger: config.logger,
+        customLogLevel(res, err) {
+          if (err || res.statusCode === 500) {
+            return 'error';
+          }
+          return 'info';
+        },
+        autoLogging: {
+          ignorePaths: ['/health'],
+        },
+      })
+    );
+  }
 
-  app.use(express.static(path.join(__dirname, 'public')));
-  app.set('views', path.join(__dirname, 'views'));
-  app.set('view engine', 'ejs');
-  app.use(home);
+  if (!opts.disableStats) {
+    app.use(express.static(path.join(__dirname, 'public')));
+    app.set('views', path.join(__dirname, 'views'));
+    app.set('view engine', 'ejs');
+    app.use(home);
+  }
 
   app.use(express.json());
   app.use(
@@ -58,10 +65,14 @@ async function createApp(opts: ApplicationOptions = {}): Promise<Application> {
 
   app.use(health);
 
-  app.use(auth);
+  if (!opts.disableAuth) {
+    app.use(auth);
+  }
 
-  app.use(events);
-  app.use(stats);
+  if (!opts.disableStats) {
+    app.use(events);
+    app.use(stats);
+  }
 
   const apolloConfig: ApolloServerExpressConfig = {
     schema: makeExecutableSchema({
