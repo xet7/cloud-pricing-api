@@ -1,6 +1,5 @@
 /* eslint no-shadow: ["error", { "allow": ["requestContext"] }] */
 
-import _ from 'lodash';
 import prettier from 'prettier';
 import {
   ApolloServerPlugin,
@@ -25,12 +24,11 @@ export default class ApolloLogger implements ApolloServerPlugin {
     requestContext: GraphQLRequestContext
   ): Promise<GraphQLRequestListener> {
     const { logger } = this;
+    const logProps = requestContext.context.logProps || {};
 
     if (requestContext.request.query?.startsWith('query IntrospectionQuery')) {
       return {};
     }
-
-    const ctx = _.omit(requestContext.context, '_extensionStack');
 
     const query = truncate(
       prettier.format(requestContext.request.query || '', { parser: 'graphql' })
@@ -39,7 +37,7 @@ export default class ApolloLogger implements ApolloServerPlugin {
       JSON.stringify(requestContext.request.variables || {}, null, 2)
     );
     logger.debug(
-      ctx,
+      logProps,
       `GraphQL request started:\n${query}\nvariables:\n${vars}`
     );
 
@@ -48,7 +46,7 @@ export default class ApolloLogger implements ApolloServerPlugin {
         requestContext: GraphQLRequestContext
       ): Promise<void> {
         const errors = truncate(JSON.stringify(requestContext.errors));
-        logger.error(ctx, `GraphQL encountered errors:\n${errors}`);
+        logger.error(logProps, `GraphQL encountered errors:\n${errors}`);
       },
       async willSendResponse(
         requestContext: GraphQLRequestContext
@@ -56,7 +54,7 @@ export default class ApolloLogger implements ApolloServerPlugin {
         const respData = truncate(
           JSON.stringify(requestContext.response?.data)
         );
-        logger.debug(ctx, `GraphQL request completed:\n${respData}`);
+        logger.debug(logProps, `GraphQL request completed:\n${respData}`);
       },
     };
   }

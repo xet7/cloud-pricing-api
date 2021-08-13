@@ -4,6 +4,7 @@ import { ApolloServerPluginLandingPageGraphQLPlayground } from 'apollo-server-co
 import { makeExecutableSchema } from 'graphql-tools';
 import pinoHttp from 'pino-http';
 import path from 'path';
+import { Logger } from 'pino';
 import config from './config';
 import ApolloLogger from './utils/apolloLogger';
 import resolvers from './resolvers';
@@ -13,7 +14,6 @@ import auth from './auth';
 import events from './events';
 import stats from './stats';
 import home from './home';
-import { Logger } from 'pino';
 
 type ApplicationOptions = {
   apolloConfigOverrides?: ApolloServerExpressConfig;
@@ -35,7 +35,7 @@ async function createApp(opts: ApplicationOptions = {}): Promise<Application> {
   if (!opts.disableRequestLogging) {
     app.use(
       pinoHttp({
-        logger: logger,
+        logger,
         customLogLevel(res, err) {
           if (err || res.statusCode === 500) {
             return 'error';
