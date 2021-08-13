@@ -13,12 +13,14 @@ import auth from './auth';
 import events from './events';
 import stats from './stats';
 import home from './home';
+import { Logger } from 'pino';
 
 type ApplicationOptions = {
   apolloConfigOverrides?: ApolloServerExpressConfig;
   disableRequestLogging?: boolean;
   disableStats?: boolean;
   disableAuth?: boolean;
+  logger?: Logger;
 };
 
 interface ResponseError extends Error {
@@ -28,10 +30,12 @@ interface ResponseError extends Error {
 async function createApp(opts: ApplicationOptions = {}): Promise<Application> {
   const app = express();
 
+  const logger = opts.logger || config.logger;
+
   if (!opts.disableRequestLogging) {
     app.use(
       pinoHttp({
-        logger: config.logger,
+        logger: logger,
         customLogLevel(res, err) {
           if (err || res.statusCode === 500) {
             return 'error';
@@ -63,6 +67,15 @@ async function createApp(opts: ApplicationOptions = {}): Promise<Application> {
     }
   );
 
+  if (!opts.disableRequestLogging) {
+    app.use((req: Request, _res: Response, next: NextFunction) => {
+      if (!['/health', '/graphql'].includes(req.path)) {
+        logger.debug({ body: req.body });
+      }
+      next();
+    });
+  }
+
   app.use(health);
 
   if (!opts.disableAuth) {
@@ -82,7 +95,7 @@ async function createApp(opts: ApplicationOptions = {}): Promise<Application> {
     introspection: true,
     plugins: [
       ApolloServerPluginLandingPageGraphQLPlayground(),
-      () => new ApolloLogger(config.logger),
+      () => new ApolloLogger(logger),
     ],
     ...opts.apolloConfigOverrides,
   };

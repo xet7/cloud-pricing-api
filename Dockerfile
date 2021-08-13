@@ -18,5 +18,6 @@ RUN mkdir data
 COPY --from=build /usr/src/app/prod_node_modules ./node_modules
 COPY --from=build /usr/src/app/dist ./dist
 COPY package*.json ./
+ENV NODE_ENV=production
 EXPOSE 4000
 CMD [ "npm", "run", "start" ]
