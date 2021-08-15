@@ -2,7 +2,7 @@
   "name": "cloud-pricing-api",
   "version": "0.2.0",
   "description": "Cloud Pricing API",
-  "main": "src/server.js",
+  "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon src/server.ts",
     "build": "tsc",
@@ -36,6 +36,8 @@
     }
   ],
   "dependencies": {
+    "@graphql-tools/schema": "^6.2.4",
+    "@graphql-tools/utils": "^6.2.4",
     "apollo-server-core": "^3.1.2",
     "apollo-server-express": "^3.1.2",
     "apollo-server-plugin-base": "^3.1.1",
@@ -48,7 +50,6 @@
     "glob": "^7.1.6",
     "googleapis": "^64.0.0",
     "graphql": "^15.4.0",
-    "graphql-tools": "^6.2.4",
     "graphql-upload": "^11.0.0",
     "lodash": "^4.17.21",
     "mingo": "^4.1.3",

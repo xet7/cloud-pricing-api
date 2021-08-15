@@ -1,4 +1,4 @@
-import { IResolvers } from 'graphql-tools';
+import { IResolvers } from '@graphql-tools/utils';
 import mingo from 'mingo';
 import { Price, Product } from './db/types';
 import currency from './utils/currency';
