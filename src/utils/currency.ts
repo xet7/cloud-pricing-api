@@ -62,7 +62,7 @@ async function queryRate(
   from: string,
   to: string
 ): Promise<number | undefined> {
-  const url = `https://api.exchangeratesapi.io/latest?base=${from}&symbols=${to}`;
+  const url = `https://api.exchangerate.host/latest?base=${from}&symbols=${to}`;
 
   try {
     config.logger.debug(`Querying exchange rate from: ${url}`);
