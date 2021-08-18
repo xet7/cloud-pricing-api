@@ -1,4 +1,5 @@
 import { gql } from 'apollo-server-express';
+import { CURRENCY_CODES } from './utils/currency';
 
 const typeDefs = gql`
   type Price {
@@ -6,6 +7,7 @@ const typeDefs = gql`
     purchaseOption: String
     unit: String!
     USD: String!
+    ${CURRENCY_CODES.map(code => `${code}: String`).join('\n')}
     effectiveDateStart: String
     effectiveDateEnd: String
     startUsageAmount: String

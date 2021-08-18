@@ -1,7 +1,7 @@
 import { IResolvers } from '@graphql-tools/utils';
 import mingo from 'mingo';
 import { Price, Product } from './db/types';
-import currency from './utils/currency';
+import currency, { CURRENCY_CODES } from './utils/currency';
 import { findProducts } from './db/query';
 
 const productLimit = 1000;
@@ -64,6 +64,13 @@ const resolvers: IResolvers = {
       return prices;
     },
   },
+  Price:
+    // For every alternate currency, add a resolver that converts from USD.
+    Object.fromEntries(
+      CURRENCY_CODES.map(code =>
+        [code, async (price: Price): Promise<number> => currency.convert('USD', code, Number(price.USD))]
+      )
+    )
 };
 
 function transformFilter(filter: Filter): MongoDbFilter {
