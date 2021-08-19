@@ -67,10 +67,12 @@ const resolvers: IResolvers = {
   Price:
     // For every alternate currency, add a resolver that converts from USD.
     Object.fromEntries(
-      CURRENCY_CODES.map(code =>
-        [code, async (price: Price): Promise<number> => currency.convert('USD', code, Number(price.USD))]
-      )
-    )
+      CURRENCY_CODES.map((code) => [
+        code,
+        async (price: Price): Promise<number> =>
+          currency.convert('USD', code, Number(price.USD)),
+      ])
+    ),
 };
 
 function transformFilter(filter: Filter): MongoDbFilter {

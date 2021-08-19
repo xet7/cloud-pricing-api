@@ -7,7 +7,7 @@ const typeDefs = gql`
     purchaseOption: String
     unit: String!
     USD: String!
-    ${CURRENCY_CODES.map(code => `${code}: String`).join('\n')}
+    ${CURRENCY_CODES.map((code) => `${code}: String`).join('\n')}
     effectiveDateStart: String
     effectiveDateEnd: String
     startUsageAmount: String
