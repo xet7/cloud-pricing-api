@@ -1,21 +1,167 @@
 import axios from 'axios';
 import { Mutex } from 'async-mutex';
+import Big from 'big.js';
 import config from '../config';
 
 export const CURRENCY_CODES = [
-  'AED', 'AFN', 'ALL', 'AMD', 'ANG', 'AOA', 'ARS', 'AUD', 'AWG', 'AZN', 'BAM', 'BBD', 'BDT',
-  'BGN', 'BHD', 'BIF', 'BMD', 'BND', 'BOB', 'BRL', 'BSD', 'BTN', 'BWP', 'BYN', 'BZD', 'CAD',
-  'CDF', 'CHF', 'CLF', 'CLP', 'CNY', 'COP', 'CRC', 'CUC', 'CUP', 'CVE', 'CZK', 'DJF', 'DKK',
-  'DOP', 'DZD', 'EGP', 'ERN', 'ETB', 'EUR', 'FJD', 'FKP', 'GBP', 'GEL', 'GGP', 'GHS', 'GIP',
-  'GMD', 'GNF', 'GTQ', 'GYD', 'HKD', 'HNL', 'HRK', 'HTG', 'HUF', 'IDR', 'ILS', 'IMP', 'INR',
-  'IQD', 'IRR', 'ISK', 'JEP', 'JMD', 'JOD', 'JPY', 'KES', 'KGS', 'KHR', 'KMF', 'KPW', 'KRW',
-  'KWD', 'KYD', 'KZT', 'LAK', 'LBP', 'LKR', 'LRD', 'LSL', 'LYD', 'MAD', 'MDL', 'MKD', 'MMK',
-  'MNT', 'MOP', 'MUR', 'MVR', 'MWK', 'MXN', 'MYR', 'MZN', 'NAD', 'NGN', 'NIO', 'NOK', 'NPR',
-  'NZD', 'OMR', 'PAB', 'PEN', 'PGK', 'PHP', 'PKR', 'PLN', 'PYG', 'QAR', 'RON', 'RSD', 'RUB',
-  'RWF', 'SAR', 'SBD', 'SCR', 'SDG', 'SEK', 'SGD', 'SHP', 'SLL', 'SOS', 'SRD', 'SSP', 'STD',
-  'SVC', 'SYP', 'SZL', 'THB', 'TJS', 'TMT', 'TND', 'TOP', 'TRY', 'TTD', 'TWD', 'TZS', 'UAH',
-  'UGX', 'UYU', 'UZS', 'VND', 'VUV', 'WST', 'XAF', 'XAG', 'XAU', 'XCD', 'XDR', 'XPF', 'YER',
-  'ZAR', 'ZMW'
+  'AED',
+  'AFN',
+  'ALL',
+  'AMD',
+  'ANG',
+  'AOA',
+  'ARS',
+  'AUD',
+  'AWG',
+  'AZN',
+  'BAM',
+  'BBD',
+  'BDT',
+  'BGN',
+  'BHD',
+  'BIF',
+  'BMD',
+  'BND',
+  'BOB',
+  'BRL',
+  'BSD',
+  'BTN',
+  'BWP',
+  'BYN',
+  'BZD',
+  'CAD',
+  'CDF',
+  'CHF',
+  'CLF',
+  'CLP',
+  'CNY',
+  'COP',
+  'CRC',
+  'CUC',
+  'CUP',
+  'CVE',
+  'CZK',
+  'DJF',
+  'DKK',
+  'DOP',
+  'DZD',
+  'EGP',
+  'ERN',
+  'ETB',
+  'EUR',
+  'FJD',
+  'FKP',
+  'GBP',
+  'GEL',
+  'GGP',
+  'GHS',
+  'GIP',
+  'GMD',
+  'GNF',
+  'GTQ',
+  'GYD',
+  'HKD',
+  'HNL',
+  'HRK',
+  'HTG',
+  'HUF',
+  'IDR',
+  'ILS',
+  'IMP',
+  'INR',
+  'IQD',
+  'IRR',
+  'ISK',
+  'JEP',
+  'JMD',
+  'JOD',
+  'JPY',
+  'KES',
+  'KGS',
+  'KHR',
+  'KMF',
+  'KPW',
+  'KRW',
+  'KWD',
+  'KYD',
+  'KZT',
+  'LAK',
+  'LBP',
+  'LKR',
+  'LRD',
+  'LSL',
+  'LYD',
+  'MAD',
+  'MDL',
+  'MKD',
+  'MMK',
+  'MNT',
+  'MOP',
+  'MUR',
+  'MVR',
+  'MWK',
+  'MXN',
+  'MYR',
+  'MZN',
+  'NAD',
+  'NGN',
+  'NIO',
+  'NOK',
+  'NPR',
+  'NZD',
+  'OMR',
+  'PAB',
+  'PEN',
+  'PGK',
+  'PHP',
+  'PKR',
+  'PLN',
+  'PYG',
+  'QAR',
+  'RON',
+  'RSD',
+  'RUB',
+  'RWF',
+  'SAR',
+  'SBD',
+  'SCR',
+  'SDG',
+  'SEK',
+  'SGD',
+  'SHP',
+  'SLL',
+  'SOS',
+  'SRD',
+  'SSP',
+  'STD',
+  'SVC',
+  'SYP',
+  'SZL',
+  'THB',
+  'TJS',
+  'TMT',
+  'TND',
+  'TOP',
+  'TRY',
+  'TTD',
+  'TWD',
+  'TZS',
+  'UAH',
+  'UGX',
+  'UYU',
+  'UZS',
+  'VND',
+  'VUV',
+  'WST',
+  'XAF',
+  'XAG',
+  'XAU',
+  'XCD',
+  'XDR',
+  'XPF',
+  'YER',
+  'ZAR',
+  'ZMW',
 ];
 
 type RateResp = {
@@ -39,10 +185,10 @@ async function convert(
 ): Promise<number> {
   const rate = await getRate(from, to);
 
-  return amount * rate;
+  return new Big(amount).times(rate).round(10).toNumber();
 }
 
-async function getRate(from: string, to: string): Promise<number> {
+async function getRate(from: string, to: string): Promise<Big> {
   const cacheKey = `currency-${from}-${to}`;
 
   // Use a mutex so we only query the API once
@@ -51,7 +197,7 @@ async function getRate(from: string, to: string): Promise<number> {
   try {
     let rate = config.cache.get<number>(`currency-${from}-${to}`);
     if (rate !== undefined) {
-      return rate;
+      return new Big(rate);
     }
 
     rate = await queryRate(from, to);
@@ -64,11 +210,11 @@ async function getRate(from: string, to: string): Promise<number> {
         config.logger.warn('Could not store exchange rate in cache');
       }
 
-      return rate;
+      return new Big(rate);
     }
 
     config.logger.warn('No exchange rate found, falling back to default rate');
-    return currencyFallbacks[from][to];
+    return new Big(currencyFallbacks[from][to]);
   } finally {
     release();
   }
