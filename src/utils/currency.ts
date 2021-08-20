@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Mutex } from 'async-mutex';
-import Big from 'big.js';
+import Decimal from 'decimal.js';
 import config from '../config';
 
 type RateResp = {
@@ -186,10 +186,10 @@ async function convert(
 ): Promise<number> {
   const rate = await getRate(from, to);
 
-  return new Big(amount).times(rate).round(10).toNumber();
+  return new Decimal(amount).times(rate).toDecimalPlaces(10).toNumber();
 }
 
-async function getRate(from: string, to: string): Promise<Big> {
+async function getRate(from: string, to: string): Promise<Decimal> {
   const cacheKey = `currency-${from}-${to}`;
 
   // Use a mutex so we only query the API once
@@ -198,7 +198,7 @@ async function getRate(from: string, to: string): Promise<Big> {
   try {
     let rate = config.cache.get<number>(`currency-${from}-${to}`);
     if (rate !== undefined) {
-      return new Big(rate);
+      return new Decimal(rate);
     }
 
     rate = await queryRate(from, to);
@@ -211,11 +211,11 @@ async function getRate(from: string, to: string): Promise<Big> {
         config.logger.warn('Could not store exchange rate in cache');
       }
 
-      return new Big(rate);
+      return new Decimal(rate);
     }
 
     config.logger.warn('No exchange rate found, falling back to default rate');
-    return new Big(currencyFallbacks[from][to]);
+    return new Decimal(currencyFallbacks[from][to]);
   } finally {
     release();
   }
