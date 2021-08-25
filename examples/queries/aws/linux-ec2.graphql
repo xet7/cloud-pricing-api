@@ -16,3 +16,5 @@ query {
     prices { USD }
   }
 }
+
+# Response too long to paste
