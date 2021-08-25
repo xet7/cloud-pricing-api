@@ -92,11 +92,12 @@
 
 [@alikhajeh1](https://github.com/alikhajeh1) and [@aliscott](https://github.com/aliscott) rotate release responsibilities between them.
 
-1. In `package.json` update `version`.
+1. In `package.json` update `version` and push to master.
 2. In the cloud-pricing-api repo, run `git tag vx.y.z && git push origin vx.y.z`
-3. Wait for the GH Actions to complete.
-4. Click on the Edit draft button, set the `vx.y.z` value in the tag name and release title. Also add the release notes from the commits between this and the last release and click on publish.
-5. Follow the Helm chart [release steps](https://github.com/infracost/helm-charts/blob/master/CONTRIBUTING.md).
-6. Announce the release in the infracost-community Slack announcements channel.
-7. Update the docs repo with any required changes.
-8. Close addressed issues and tag anyone who liked/commented in them to tell them it's live in version X.
+3. Wait for the GH Actions to complete as that creates/pushes the docker tag.
+4. Goto https://github.com/infracost/cloud-pricing-api/compare and find the diff between the latest and the previous version so you can create a description for the GitHub Release.
+5. Click Releases > Draft New Release button, set the `vx.y.z` value in the tag name and release title. Also add the release description from step 4 and click on publish.
+6. Follow the Helm chart [release steps](https://github.com/infracost/helm-charts/blob/master/CONTRIBUTING.md).
+7. Announce the release in the infracost-community Slack announcements channel.
+8. Update the docs repo with any required changes.
+9. Close addressed issues and tag anyone who liked/commented in them to tell them it's live in version X.
