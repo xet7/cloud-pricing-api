@@ -38,7 +38,7 @@
   "dependencies": {
     "@graphql-tools/schema": "^6.2.4",
     "@graphql-tools/utils": "^6.2.4",
-    "apollo-server-core": "^3.1.2",
+    "apollo-server-core": "^3.12.1",
     "apollo-server-express": "^3.1.2",
     "apollo-server-plugin-base": "^3.1.1",
     "async-mutex": "^0.3.1",
